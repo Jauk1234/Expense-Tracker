@@ -38,6 +38,7 @@ dependencies:
   provider: ^6.1.2
   injectable: ^2.4.4
   popover: ^0.3.0+1
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -62,13 +63,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - "lib/images/tracker.jpg"
-    - "lib/images/tracker1.png"
-    - "lib/images/tracker2.jpg"
-    - "lib/images/tracker3.webp"
-    - "lib/images/trck.jpg"
-    - "lib/images/pig.png"
-    - "lib/images/slika.jpg"
+    - "lib/images/work.png"
+    - "lib/images/wall.jpg"
+    - "lib/images/stocs.jpg"
+    - "lib/images/imagesTile/food.jpg"
+    - "lib/images/imagesTile/others.jpg"
+    - "lib/images/imagesTile/travel.jpg"
+    - "lib/images/imagesTile/hobi.webp"
+    - "lib/images/imagesTile/fun.jpg"
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -20,19 +20,17 @@ class ExpenseDatabase extends ChangeNotifier {
       'Description': newExpense.description,
       'Amount': newExpense.amount,
       'date': newExpense.date.toIso8601String(),
-      'cateogry': newExpense.category,
+      'cateogry': newExpense.category.toString().split('.').last,
     };
-    await supabase.from('Expense').insert(expenseData);
+
+    _allExpenses.add(newExpense);
+    notifyListeners();
+
+    final response = await supabase.from('Expense').insert(expenseData);
   }
 
   //read - expenses from db
-  Future<void> readExpenses() async {
-    //fetch all existing expenses
-
-    //give to local expense list
-
-    //update UI
-  }
+  Future<void> readExpenses() async {}
 
   //update - edit expense
   Future<void> updateExpense(String expenseId, String updatedExpense) async {

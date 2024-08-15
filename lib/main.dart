@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: IntroPage(),
         routes: {
           '/login_or_register': (context) => LoginOrRegister(),

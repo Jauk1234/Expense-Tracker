@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tracker/components/my_button.dart';
 
 class IntroPage extends StatefulWidget {
@@ -34,57 +35,69 @@ class _IntroPageState extends State<IntroPage> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("lib/images/slika.jpg"),
+                image: AssetImage("lib/images/wall.jpg"),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           Center(
             // Center the whole Column within the Stack
+
             child: Container(
               padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Column(
+                  Column(
                     children: [
-                      Icon(
-                        Icons.border_color,
-                        size: 90,
-                        color: Colors.white,
-                      ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 75),
                       Text(
                         'Simplify Spending, Maximize Savings!',
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 255, 19, 19),
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold),
+                        style: GoogleFonts.bebasNeue(
+                          color: const Color.fromARGB(255, 255, 19, 19),
+                          fontSize: 61,
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Expense Tracer',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold),
+                        style: GoogleFonts.bebasNeue(
+                          color: Colors.white,
+                          fontSize: 42,
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+                      Image.asset(
+                        "lib/images/stocs.jpg",
+                        height: 140,
                       ),
                     ],
                   ),
                   if (ind == 0)
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         MyButton(
                           textColor: Colors.black,
-                          color: Colors.red,
                           onTap: idiDalje,
-                          text: 'Let\s Go!',
+                          text: 'Let\'s Go!',
+                          icon: Icons.arrow_right,
+                          gradientColors: const [
+                            Color.fromARGB(255, 245, 35, 35),
+                            Color.fromARGB(255, 255, 3, 3)
+                          ],
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Effortlessly manage and monitor your spending with our Expense Tracker app. Track expenses, set budgets, and gain insights into your financial habits to stay on top of your personal finances.',
+                          style: GoogleFonts.volkhov(
+                              color: Colors.white, fontSize: 14),
+                        ),
                       ],
                     )
                   else if (ind == 1)
@@ -92,13 +105,22 @@ class _IntroPageState extends State<IntroPage> {
                       children: [
                         MyButton(
                           textColor: Colors.black,
-                          color: Colors.red,
+                          gradientColors: const [
+                            Color.fromARGB(255, 245, 35, 35),
+                            Color.fromARGB(255, 255, 3, 3)
+                          ],
                           text: 'Continue with Email',
                           onTap: _submit,
+                          icon: Icons.arrow_right,
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Effortlessly manage and monitor your spending with our Expense Tracker app. Track expenses, set budgets, and gain insights into your financial habits to stay on top of your personal finances.',
+                          style: GoogleFonts.volkhov(
+                              color: Colors.white, fontSize: 14),
+                        ),
                       ],
-                    )
+                    ),
                 ],
               ),
             ),
@@ -108,13 +130,13 @@ class _IntroPageState extends State<IntroPage> {
               right: 22,
               top: 40,
               child: FloatingActionButton(
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                shape: const CircleBorder(),
                 onPressed: vratiNazad,
                 child: Transform.rotate(
                   angle: 45 * 3.14 / 180,
                   child: const Icon(Icons.add),
                 ),
-                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                shape: const CircleBorder(),
               ),
             ),
         ],
