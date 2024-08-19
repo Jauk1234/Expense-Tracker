@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:tracker/components/my_drawler.dart';
 import 'package:tracker/components/my_tile.dart';
@@ -13,7 +14,7 @@ class HomePage extends StatelessWidget {
   final TextEditingController descController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
 
-  void _showAddExpenseDialog(BuildContext context) {
+  void _showAddExpenseDialog(BuildContext context, ExpenseDatabase expense) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -67,15 +68,28 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  Text('Pick a Date'),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.calendar_month),
-                  ),
-                ],
-              )
+              Consumer<ExpenseDatabase>(
+                builder: (context, expenseDatabase, child) {
+                  return Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          final calendar = context.read<ExpenseDatabase>();
+                          calendar.pickDate(context);
+                        },
+                        icon: Icon(Icons.calendar_month),
+                      ),
+                      Text(
+                        expenseDatabase.pickedDate != null
+                            ? expenseDatabase.pickedDate
+                                .toString()
+                                .split(' ')[0]
+                            : 'No date picked',
+                      ),
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -123,7 +137,7 @@ class HomePage extends StatelessWidget {
         ),
         drawer: MyDrawler(),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => _showAddExpenseDialog(context),
+          onPressed: () => _showAddExpenseDialog(context, expenseDatabase),
           child: const Icon(Icons.add),
         ),
         body: Container(
@@ -139,7 +153,15 @@ class HomePage extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(16.0),
           child: expenseDatabase.allExpense.isEmpty
-              ? const Center(child: Text('No expenses added yet.'))
+              ? Center(
+                  child: Text(
+                  'No expenses added yet.',
+                  style: GoogleFonts.bebasNeue(
+                    fontSize: 32,
+                    color: const Color.fromARGB(255, 205, 166, 166),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ))
               : ListView.builder(
                   itemCount: expenseDatabase.allExpense.length,
                   itemBuilder: (context, index) {
@@ -160,22 +182,26 @@ class HomePage extends StatelessWidget {
     final amountString = amountController.text;
 
     if (name.isEmpty || amountString.isEmpty) {
-      // Show error dialog or toast
       return false;
     }
 
     final amount = double.tryParse(amountString);
     if (amount == null) {
-      // Show error dialog or toast
       return false;
     }
 
+    final pickedDate = context.read<ExpenseDatabase>().pickedDate;
+
+    final expenseDate = pickedDate ?? DateTime.now();
+
+    final uzmiId = context.read<ExpenseDatabase>().povecaj();
+
     final expense = Expense(
-      id: 0,
+      id: uzmiId,
       name: name,
       description: description,
       amount: amount,
-      date: DateTime.now(),
+      date: expenseDate,
       category: context.read<DropDown>().selectedCategory,
     );
 

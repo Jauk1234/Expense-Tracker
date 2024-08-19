@@ -1,9 +1,36 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tracker/models/expense.dart';
+import 'package:uuid/uuid.dart';
 
 class ExpenseDatabase extends ChangeNotifier {
   final supabase = Supabase.instance.client;
+  DateTime? _pickedDate;
+  DateTime? get pickedDate => _pickedDate;
+  DateTime initialDate = DateTime.now();
+  DateTime firstDate = DateTime(2000);
+  DateTime lastDate = DateTime(2025);
+  final Uuid uuid = Uuid();
+  int idExp = 1;
+
+  povecaj() {
+    return idExp = idExp + 1;
+  }
+
+  void pickDate(BuildContext context) {
+    showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    ).then((value) {
+      if (value != null) {
+        _pickedDate = value;
+        notifyListeners();
+      }
+    });
+  }
 
   List<Expense> _allExpenses = [];
 
@@ -16,6 +43,7 @@ class ExpenseDatabase extends ChangeNotifier {
   //create - add new expense
   Future<void> createNewExpense(Expense newExpense) async {
     final expenseData = {
+      'id': newExpense.id,
       'Name': newExpense.name,
       'Description': newExpense.description,
       'Amount': newExpense.amount,
@@ -29,18 +57,21 @@ class ExpenseDatabase extends ChangeNotifier {
     final response = await supabase.from('Expense').insert(expenseData);
   }
 
-  //read - expenses from db
-  Future<void> readExpenses() async {}
-
   //update - edit expense
-  Future<void> updateExpense(String expenseId, String updatedExpense) async {
-    await supabase
-        .from('Expense')
-        .update({'name': updatedExpense}).eq('id', expenseId);
+  Future<void> updateExpense(int expenseId, Expense updateExpense) async {
+    await supabase.from('Expense').update({
+      'Name': updateExpense.name,
+      'Description': updateExpense.description,
+      'Amount': updateExpense.amount,
+    }).eq('id', expenseId);
   }
 
   //delete
-  Future<void> deleteExpense(String expenseId) async {
+  Future<void> deleteExpense(int expenseId) async {
+    print('Delete Id ${expenseId}');
     await supabase.from('Expense').delete().eq('id', expenseId);
+
+    _allExpenses.removeWhere((expense) => expense.id == expenseId);
+    notifyListeners();
   }
 }

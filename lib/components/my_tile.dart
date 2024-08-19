@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/models/expense.dart';
 
 class MyTile extends StatelessWidget {
@@ -8,6 +10,10 @@ class MyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController nameController = TextEditingController();
+    final TextEditingController descController = TextEditingController();
+    final TextEditingController amountController = TextEditingController();
+
     String getImagePath(String category) {
       if (category == 'Work') {
         return 'lib/images/work.png';
@@ -26,10 +32,69 @@ class MyTile extends StatelessWidget {
       }
     }
 
+    void _openDialog(Expense expense, BuildContext context) {
+      String existingName = expense.name;
+      String desc = expense.description;
+
+      // showDialog(
+      //   context: context,
+      //   builder: (context) {
+      //     return AlertDialog(
+      //       title: Text('Edit expense'),
+      //       content: Column(
+      //         mainAxisSize: MainAxisSize.min,
+      //         children: [
+      //           TextField(
+      //             controller: nameController,
+      //             decoration: InputDecoration(hintText: existingName),
+      //           ),
+      //           TextField(
+      //             controller: descController,
+      //             decoration: InputDecoration(hintText: existingName),
+      //           ),
+      //           TextField(
+      //             controller: amountController,
+      //             decoration: InputDecoration(hintText: existingName),
+      //           ),
+      //         ],
+      //       ),
+      //       actions: [
+      //         // Save button
+      //         MaterialButton(
+      //           onPressed: () async {
+      //             if (nameController.text.isNotEmpty) {
+      //               Navigator.pop(context);
+
+      //               String updateExpense = expense.name;
+      //               double updatedAmount = double.parse(amountController.text);
+
+      //               int existingId = expense.id!;
+
+      //               Expense updatedExpense = Expense(
+      //                   name: updateExpense,
+      //                   description: desc,
+      //                   amount: 22,
+      //                   date: DateTime.now(),
+      //                   category: Category.Food);
+
+      //               final expenseDatabase =
+      //                   Provider.of<ExpenseDatabase>(context, listen: false);
+      //               await expenseDatabase.updateExpense(
+      //                   existingId, updatedExpense);
+      //             }
+      //           },
+      //           child: Text('Save'),
+      //         ),
+      //       ],
+      //     );
+      //   },
+      // );
+    }
+
     final imagePath = getImagePath(expense.category.toString().split('.').last);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       height: 270,
       width: double.infinity,
       decoration: BoxDecoration(
@@ -43,20 +108,20 @@ class MyTile extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Slika
+              // Image
               ClipRRect(
                 borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20)),
                 child: Image.asset(
                   imagePath,
-                  height: imageHeight, // Use calculated height
+                  height: imageHeight,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(height: 8),
-              // subtitle aktivnosti
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Column(
@@ -104,7 +169,7 @@ class MyTile extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Date',
+                              expense.date.toLocal().toString().split(' ')[0],
                               style: TextStyle(
                                   color: Colors.grey[600], fontSize: 17),
                             ),
@@ -116,14 +181,35 @@ class MyTile extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.edit),
-                            SizedBox(width: 20),
-                            Icon(Icons.delete),
-                          ],
-                        )
+                        Consumer<ExpenseDatabase>(
+                          builder: (context, expenseDatabase, child) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () =>
+                                      _openDialog(expense, context),
+                                  icon: Icon(Icons.edit),
+                                ),
+                                SizedBox(width: 20),
+                                IconButton(
+                                  onPressed: () async {
+                                    if (expense.id != null) {
+                                      final expenseDatabase =
+                                          Provider.of<ExpenseDatabase>(context,
+                                              listen: false);
+                                      await expenseDatabase
+                                          .deleteExpense(expense.id!);
+                                    } else {
+                                      print('Expense id is null');
+                                    }
+                                  },
+                                  icon: Icon(Icons.delete),
+                                )
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ],
