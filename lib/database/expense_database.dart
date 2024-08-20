@@ -10,7 +10,7 @@ class ExpenseDatabase extends ChangeNotifier {
   DateTime? get pickedDate => _pickedDate;
   DateTime initialDate = DateTime.now();
   DateTime firstDate = DateTime(2000);
-  DateTime lastDate = DateTime(2025);
+  DateTime lastDate = DateTime.now();
   final Uuid uuid = Uuid();
   int idExp = 1;
 
@@ -63,15 +63,108 @@ class ExpenseDatabase extends ChangeNotifier {
       'Name': updateExpense.name,
       'Description': updateExpense.description,
       'Amount': updateExpense.amount,
+      'date': updateExpense.date.toIso8601String(),
+      'cateogry': updateExpense.category.toString().split('.').last,
     }).eq('id', expenseId);
+
+    _allExpenses.removeWhere((expense) => expense.id == expenseId);
+    _allExpenses.add(updateExpense);
+    notifyListeners();
   }
 
   //delete
   Future<void> deleteExpense(int expenseId) async {
-    print('Delete Id ${expenseId}');
+    print('Attempting to delete expense with ID: $expenseId');
     await supabase.from('Expense').delete().eq('id', expenseId);
 
     _allExpenses.removeWhere((expense) => expense.id == expenseId);
     notifyListeners();
+  }
+//
+
+  // calucate total expdense each month
+  Future<Map<int, double>> calculateMonthlyTotal() async {
+    //read expenses from database
+
+    //create a map to  keep track of total expenses per month
+    Map<int, double> monthlyTotals = {};
+
+    for (var expense in _allExpenses) {
+      int month = expense.date.month;
+// ako nema mjeseca u map neka bude 0
+      if (!monthlyTotals.containsKey(month)) {
+        monthlyTotals[month] = 0;
+      }
+      monthlyTotals[month] = monthlyTotals[month]! + expense.amount;
+    }
+    return monthlyTotals;
+  }
+
+  //get start motnh
+  int getStartMonth() {
+    if (_allExpenses.isEmpty) {
+      return DateTime.now().month;
+    }
+    //soritaj
+    _allExpenses.sort((a, b) => a.date.compareTo(b.date));
+    return _allExpenses.first.date.month;
+  }
+
+  //get start year
+  int getStartYear() {
+    if (_allExpenses.isEmpty) {
+      return DateTime.now().year;
+    }
+    //soritaj
+    _allExpenses.sort((a, b) => a.date.compareTo(b.date));
+    return _allExpenses.first.date.year;
+  } // New method to get total for the selected month
+
+  Future<Map<int, double>> calculateYearlyTotals() async {
+    Map<int, double> monthlyTotals = {};
+
+    // Iterate through expenses and calculate totals
+    for (var expense in _allExpenses) {
+      int month = expense.date.month;
+      if (!monthlyTotals.containsKey(month)) {
+        monthlyTotals[month] = 0;
+      }
+      monthlyTotals[month] = monthlyTotals[month]! + expense.amount;
+    }
+
+    // Ensure all months are included
+    for (int month = 1; month <= 12; month++) {
+      if (!monthlyTotals.containsKey(month)) {
+        monthlyTotals[month] = 0;
+      }
+    }
+
+    return monthlyTotals;
+  }
+
+  Future<Map<int, double>> calculateMonthlyTotalForSelectedMonth(
+      DateTime selectedMonth) async {
+    Map<int, double> monthlyTotals = {};
+
+    // Iterate through expenses and calculate totals
+    for (var expense in _allExpenses) {
+      if (expense.date.year == selectedMonth.year &&
+          expense.date.month == selectedMonth.month) {
+        int month = expense.date.month;
+        if (!monthlyTotals.containsKey(month)) {
+          monthlyTotals[month] = 0;
+        }
+        monthlyTotals[month] = monthlyTotals[month]! + expense.amount;
+      }
+    }
+
+    // Ensure all months are included
+    for (int month = 1; month <= 12; month++) {
+      if (!monthlyTotals.containsKey(month)) {
+        monthlyTotals[month] = 0;
+      }
+    }
+
+    return monthlyTotals;
   }
 }

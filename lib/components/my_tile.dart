@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
@@ -11,8 +13,8 @@ class MyTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController nameController = TextEditingController();
-    final TextEditingController descController = TextEditingController();
-    final TextEditingController amountController = TextEditingController();
+    TextEditingController descController = TextEditingController();
+    TextEditingController amountController = TextEditingController();
 
     String getImagePath(String category) {
       if (category == 'Work') {
@@ -34,61 +36,68 @@ class MyTile extends StatelessWidget {
 
     void _openDialog(Expense expense, BuildContext context) {
       String existingName = expense.name;
-      String desc = expense.description;
+      double existignAmount = expense.amount;
+      String existingDesc = expense.description;
 
-      // showDialog(
-      //   context: context,
-      //   builder: (context) {
-      //     return AlertDialog(
-      //       title: Text('Edit expense'),
-      //       content: Column(
-      //         mainAxisSize: MainAxisSize.min,
-      //         children: [
-      //           TextField(
-      //             controller: nameController,
-      //             decoration: InputDecoration(hintText: existingName),
-      //           ),
-      //           TextField(
-      //             controller: descController,
-      //             decoration: InputDecoration(hintText: existingName),
-      //           ),
-      //           TextField(
-      //             controller: amountController,
-      //             decoration: InputDecoration(hintText: existingName),
-      //           ),
-      //         ],
-      //       ),
-      //       actions: [
-      //         // Save button
-      //         MaterialButton(
-      //           onPressed: () async {
-      //             if (nameController.text.isNotEmpty) {
-      //               Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Edit expense'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(hintText: existingName),
+                ),
+                TextField(
+                  controller: descController,
+                  decoration: InputDecoration(hintText: existingDesc),
+                ),
+                TextField(
+                  controller: amountController,
+                  decoration: InputDecoration(hintText: '$existignAmount'),
+                ),
+              ],
+            ),
+            actions: [
+              // Save button
+              MaterialButton(
+                onPressed: () async {
+                  if (nameController.text.isNotEmpty) {
+                    Navigator.pop(context);
 
-      //               String updateExpense = expense.name;
-      //               double updatedAmount = double.parse(amountController.text);
+                    String updateName = nameController.text;
+                    double updatedAmount = double.parse(amountController.text);
+                    String updateDesc = descController.text;
 
-      //               int existingId = expense.id!;
+                    int existingId = expense.id!;
 
-      //               Expense updatedExpense = Expense(
-      //                   name: updateExpense,
-      //                   description: desc,
-      //                   amount: 22,
-      //                   date: DateTime.now(),
-      //                   category: Category.Food);
+                    Expense updatedExpense = Expense(
+                        name: updateName.isNotEmpty ? updateName : 'Staro ime',
+                        description:
+                            updateDesc.isNotEmpty ? updateDesc : 'Stari opis',
+                        amount: updatedAmount,
+                        date: DateTime.now(),
+                        category: Category.Food);
 
-      //               final expenseDatabase =
-      //                   Provider.of<ExpenseDatabase>(context, listen: false);
-      //               await expenseDatabase.updateExpense(
-      //                   existingId, updatedExpense);
-      //             }
-      //           },
-      //           child: Text('Save'),
-      //         ),
-      //       ],
-      //     );
-      //   },
-      // );
+                    final expenseDatabase =
+                        Provider.of<ExpenseDatabase>(context, listen: false);
+                    await expenseDatabase.updateExpense(
+                        existingId, updatedExpense);
+                    print('Expense ID: $existingId');
+                    print('Update Name: $updateName');
+                    print('Update Amount: $updatedAmount');
+                    print('Update Description: $updateDesc');
+                  }
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
     }
 
     final imagePath = getImagePath(expense.category.toString().split('.').last);
@@ -198,11 +207,10 @@ class MyTile extends StatelessWidget {
                                       final expenseDatabase =
                                           Provider.of<ExpenseDatabase>(context,
                                               listen: false);
+
                                       await expenseDatabase
                                           .deleteExpense(expense.id!);
-                                    } else {
-                                      print('Expense id is null');
-                                    }
+                                    } else {}
                                   },
                                   icon: Icon(Icons.delete),
                                 )
