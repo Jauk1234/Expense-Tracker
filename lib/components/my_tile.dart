@@ -119,44 +119,55 @@ class MyTile extends StatelessWidget {
               ],
             ),
             actions: [
-              // Save button
-              MaterialButton(
-                onPressed: () async {
-                  String updateName = nameController.text.isNotEmpty
-                      ? nameController.text
-                      : expense.name;
-                  String updateDesc = descController.text.isNotEmpty
-                      ? descController.text
-                      : expense.description;
-                  double updatedAmount = amountController.text.isNotEmpty
-                      ? double.parse(amountController.text)
-                      : expense.amount;
-                  final selectedCategory =
-                      Provider.of<DropDown>(context, listen: false)
-                              .selectedCategory ??
-                          expense.category;
-                  final selectedDate =
-                      Provider.of<ExpenseDatabase>(context, listen: false)
-                              .pickedDate ??
-                          expense.date;
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MaterialButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('Cancel'),
+                  ),
+                  MaterialButton(
+                    onPressed: () async {
+                      String updateName = nameController.text.isNotEmpty
+                          ? nameController.text
+                          : expense.name;
+                      String updateDesc = descController.text.isNotEmpty
+                          ? descController.text
+                          : expense.description;
+                      double updatedAmount = amountController.text.isNotEmpty
+                          ? double.parse(amountController.text)
+                          : expense.amount;
+                      final selectedCategory =
+                          Provider.of<DropDown>(context, listen: false)
+                                  .selectedCategory ??
+                              expense.category;
+                      final selectedDate =
+                          Provider.of<ExpenseDatabase>(context, listen: false)
+                                  .pickedDate ??
+                              expense.date;
 
-                  Expense updatedExpense = Expense(
-                    name: updateName,
-                    description: updateDesc,
-                    amount: updatedAmount,
-                    date: selectedDate,
-                    category: selectedCategory,
-                  );
+                      Expense updatedExpense = Expense(
+                        name: updateName,
+                        description: updateDesc,
+                        amount: updatedAmount,
+                        date: selectedDate,
+                        category: selectedCategory,
+                      );
 
-                  final expenseDatabase =
-                      Provider.of<ExpenseDatabase>(context, listen: false);
-                  await expenseDatabase.updateExpense(
-                      expense.id, updatedExpense);
+                      final expenseDatabase =
+                          Provider.of<ExpenseDatabase>(context, listen: false);
+                      await expenseDatabase.updateExpense(
+                          expense.id, updatedExpense);
 
-                  Navigator.pop(context);
-                },
-                child: Text('Save'),
+                      Navigator.pop(context);
+                    },
+                    child: Text('Save'),
+                  ),
+                ],
               ),
+              // Save button
             ],
           );
         },
@@ -270,8 +281,8 @@ class MyTile extends StatelessWidget {
                                           Provider.of<ExpenseDatabase>(context,
                                               listen: false);
 
-                                      await expenseDatabase
-                                          .deleteExpense(expense.id);
+                                      await expenseDatabase.deleteExpense(
+                                          expense.id, expense, context);
                                     }
                                   },
                                   icon: Icon(Icons.delete),

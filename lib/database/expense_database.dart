@@ -74,11 +74,47 @@ class ExpenseDatabase extends ChangeNotifier {
   }
 
   //delete
-  Future<void> deleteExpense(String expenseId) async {
-    print('Attempting to delete expense with ID: $expenseId');
+  Future<void> deleteExpense(
+      String expenseId, Expense expense, BuildContext context) async {
+    final expenseIndex = _allExpenses.indexOf(expense);
+
+    // Sačuvaj izbrisani trošak pre nego što ga ukloniš
+    final Expense deletedExpense = expense;
+
+    // Izvrši brisanje iz baze podataka
     await supabase.from('tracker').delete().eq('id', expenseId);
 
+    // Ukloni trošak iz liste
     _allExpenses.removeWhere((expense) => expense.id == expenseId);
+
+    // Prikazi SnackBar sa opcijom Undo
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 3),
+        content: const Text('Expense deleted'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () async {
+            // Dodaj trošak nazad u listu i bazu podataka
+            _allExpenses.insert(expenseIndex, deletedExpense);
+            notifyListeners();
+
+            // Dodaj trošak nazad u bazu podataka
+            final deletedExp = {
+              'id': deletedExpense.id,
+              'Name': deletedExpense.name,
+              'Description': deletedExpense.description,
+              'Amount': deletedExpense.amount,
+              'date': deletedExpense.date.toIso8601String(),
+              'cateogry': deletedExpense.category.toString().split('.').last,
+            };
+
+            await supabase.from('tracker').insert(deletedExp);
+          },
+        ),
+      ),
+    );
+
     notifyListeners();
   }
 //
