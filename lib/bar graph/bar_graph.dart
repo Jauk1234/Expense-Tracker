@@ -45,14 +45,12 @@ class _MyBarGraphState extends State<MyBarGraph> {
         );
       },
     );
-    print('Bar Data: $barData');
   }
 
   @override
   Widget build(BuildContext context) {
     double barWidth = 20;
-    double spaceBetweenBars = 35; // Adjust spacing if needed
-
+    double spaceBetweenBars = 35;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(

@@ -271,7 +271,6 @@ class _HomePageState extends State<HomePage> {
     final uzmiId = context.read<ExpenseDatabase>().povecaj();
 
     final expense = Expense(
-      id: uzmiId,
       name: name,
       description: description,
       amount: amount,

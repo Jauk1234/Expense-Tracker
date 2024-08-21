@@ -9,7 +9,7 @@ class ExpenseDatabase extends ChangeNotifier {
   DateTime? _pickedDate;
   DateTime? get pickedDate => _pickedDate;
   DateTime initialDate = DateTime.now();
-  DateTime firstDate = DateTime(2000);
+  DateTime firstDate = DateTime(2024);
   DateTime lastDate = DateTime.now();
   final Uuid uuid = Uuid();
   int idExp = 1;
@@ -54,12 +54,13 @@ class ExpenseDatabase extends ChangeNotifier {
     _allExpenses.add(newExpense);
     notifyListeners();
 
-    final response = await supabase.from('Expense').insert(expenseData);
+    final response = await supabase.from('tracker').insert(expenseData);
   }
 
   //update - edit expense
-  Future<void> updateExpense(int expenseId, Expense updateExpense) async {
-    await supabase.from('Expense').update({
+  Future<void> updateExpense(String expenseId, Expense updateExpense) async {
+    await supabase.from('tracker').update({
+      'id': updateExpense.id,
       'Name': updateExpense.name,
       'Description': updateExpense.description,
       'Amount': updateExpense.amount,
@@ -73,9 +74,9 @@ class ExpenseDatabase extends ChangeNotifier {
   }
 
   //delete
-  Future<void> deleteExpense(int expenseId) async {
+  Future<void> deleteExpense(String expenseId) async {
     print('Attempting to delete expense with ID: $expenseId');
-    await supabase.from('Expense').delete().eq('id', expenseId);
+    await supabase.from('tracker').delete().eq('id', expenseId);
 
     _allExpenses.removeWhere((expense) => expense.id == expenseId);
     notifyListeners();

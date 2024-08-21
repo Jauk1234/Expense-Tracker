@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/models/expense.dart';
+import 'package:tracker/provider/drop_down.dart';
 
 class MyTile extends StatelessWidget {
   MyTile({super.key, required this.expense});
@@ -12,9 +13,12 @@ class MyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController descController = TextEditingController();
-    TextEditingController amountController = TextEditingController();
+    TextEditingController nameController =
+        TextEditingController(text: expense.name);
+    TextEditingController descController =
+        TextEditingController(text: expense.description);
+    TextEditingController amountController =
+        TextEditingController(text: expense.amount.toString());
 
     String getImagePath(String category) {
       if (category == 'Work') {
@@ -35,10 +39,6 @@ class MyTile extends StatelessWidget {
     }
 
     void _openDialog(Expense expense, BuildContext context) {
-      String existingName = expense.name;
-      double existignAmount = expense.amount;
-      String existingDesc = expense.description;
-
       showDialog(
         context: context,
         builder: (context) {
@@ -49,15 +49,72 @@ class MyTile extends StatelessWidget {
               children: [
                 TextField(
                   controller: nameController,
-                  decoration: InputDecoration(hintText: existingName),
+                  decoration: InputDecoration(hintText: 'Enter new name'),
                 ),
                 TextField(
                   controller: descController,
-                  decoration: InputDecoration(hintText: existingDesc),
+                  decoration:
+                      InputDecoration(hintText: 'Enter new description'),
                 ),
                 TextField(
                   controller: amountController,
-                  decoration: InputDecoration(hintText: '$existignAmount'),
+                  decoration: InputDecoration(hintText: 'Enter new amount'),
+                ),
+                Consumer<DropDown>(
+                  builder: (context, value, child) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Choose category',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 18,
+                          ),
+                        ),
+                        DropdownButton<Category>(
+                          value: value.selectedCategory ?? expense.category,
+                          onChanged: (Category? newValue) {
+                            if (newValue != null) {
+                              value.setCategoryValue(newValue);
+                            }
+                          },
+                          items:
+                              value.allCategory.map<DropdownMenuItem<Category>>(
+                            (Category category) {
+                              return DropdownMenuItem<Category>(
+                                value: category,
+                                child:
+                                    Text(category.toString().split('.').last),
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                Consumer<ExpenseDatabase>(
+                  builder: (context, expenseDatabase, child) {
+                    return Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            final calendar = context.read<ExpenseDatabase>();
+                            calendar.pickDate(context);
+                          },
+                          icon: Icon(Icons.calendar_month),
+                        ),
+                        Text(
+                          expenseDatabase.pickedDate != null
+                              ? expenseDatabase.pickedDate
+                                  .toString()
+                                  .split(' ')[0]
+                              : 'No date picked',
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -65,32 +122,38 @@ class MyTile extends StatelessWidget {
               // Save button
               MaterialButton(
                 onPressed: () async {
-                  if (nameController.text.isNotEmpty) {
-                    Navigator.pop(context);
+                  String updateName = nameController.text.isNotEmpty
+                      ? nameController.text
+                      : expense.name;
+                  String updateDesc = descController.text.isNotEmpty
+                      ? descController.text
+                      : expense.description;
+                  double updatedAmount = amountController.text.isNotEmpty
+                      ? double.parse(amountController.text)
+                      : expense.amount;
+                  final selectedCategory =
+                      Provider.of<DropDown>(context, listen: false)
+                              .selectedCategory ??
+                          expense.category;
+                  final selectedDate =
+                      Provider.of<ExpenseDatabase>(context, listen: false)
+                              .pickedDate ??
+                          expense.date;
 
-                    String updateName = nameController.text;
-                    double updatedAmount = double.parse(amountController.text);
-                    String updateDesc = descController.text;
+                  Expense updatedExpense = Expense(
+                    name: updateName,
+                    description: updateDesc,
+                    amount: updatedAmount,
+                    date: selectedDate,
+                    category: selectedCategory,
+                  );
 
-                    int existingId = expense.id!;
+                  final expenseDatabase =
+                      Provider.of<ExpenseDatabase>(context, listen: false);
+                  await expenseDatabase.updateExpense(
+                      expense.id, updatedExpense);
 
-                    Expense updatedExpense = Expense(
-                        name: updateName.isNotEmpty ? updateName : 'Staro ime',
-                        description:
-                            updateDesc.isNotEmpty ? updateDesc : 'Stari opis',
-                        amount: updatedAmount,
-                        date: DateTime.now(),
-                        category: Category.Food);
-
-                    final expenseDatabase =
-                        Provider.of<ExpenseDatabase>(context, listen: false);
-                    await expenseDatabase.updateExpense(
-                        existingId, updatedExpense);
-                    print('Expense ID: $existingId');
-                    print('Update Name: $updateName');
-                    print('Update Amount: $updatedAmount');
-                    print('Update Description: $updateDesc');
-                  }
+                  Navigator.pop(context);
                 },
                 child: Text('Save'),
               ),
@@ -130,7 +193,6 @@ class MyTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Column(
@@ -200,17 +262,17 @@ class MyTile extends StatelessWidget {
                                       _openDialog(expense, context),
                                   icon: Icon(Icons.edit),
                                 ),
-                                SizedBox(width: 20),
+                                const SizedBox(width: 20),
                                 IconButton(
                                   onPressed: () async {
-                                    if (expense.id != null) {
+                                    if (expense.id.isNotEmpty) {
                                       final expenseDatabase =
                                           Provider.of<ExpenseDatabase>(context,
                                               listen: false);
 
                                       await expenseDatabase
-                                          .deleteExpense(expense.id!);
-                                    } else {}
+                                          .deleteExpense(expense.id);
+                                    }
                                   },
                                   icon: Icon(Icons.delete),
                                 )
