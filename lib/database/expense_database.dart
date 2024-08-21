@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tracker/models/expense.dart';
-import 'package:uuid/uuid.dart';
 
 class ExpenseDatabase extends ChangeNotifier {
   final supabase = Supabase.instance.client;
@@ -11,12 +10,6 @@ class ExpenseDatabase extends ChangeNotifier {
   DateTime initialDate = DateTime.now();
   DateTime firstDate = DateTime(2024);
   DateTime lastDate = DateTime.now();
-  final Uuid uuid = Uuid();
-  int idExp = 1;
-
-  povecaj() {
-    return idExp = idExp + 1;
-  }
 
   void pickDate(BuildContext context) {
     showDatePicker(
@@ -57,7 +50,7 @@ class ExpenseDatabase extends ChangeNotifier {
     final response = await supabase.from('tracker').insert(expenseData);
   }
 
-  //update - edit expense
+  //update - edit expennnse
   Future<void> updateExpense(String expenseId, Expense updateExpense) async {
     await supabase.from('tracker').update({
       'id': updateExpense.id,
@@ -203,5 +196,25 @@ class ExpenseDatabase extends ChangeNotifier {
     }
 
     return monthlyTotals;
+  }
+
+  final List<Expense> _filteredExpenses = [];
+  List<Expense> get filteredExpense => _filteredExpenses;
+
+//dodaj expense u filt
+  Future<void> addToFilteredExpenses(List<String> selectedCategories) async {
+    if (selectedCategories.isEmpty) {
+      // If no categories are selected, show all expenses
+      _filteredExpenses.clear();
+      _filteredExpenses.addAll(_allExpenses);
+    } else {
+      // Filter expenses based on selected categories
+      _filteredExpenses.clear();
+      _filteredExpenses.addAll(_allExpenses.where((expense) {
+        return selectedCategories
+            .contains(expense.category.toString().split('.').last);
+      }));
+    }
+    notifyListeners();
   }
 }

@@ -132,6 +132,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     refreshGraphData(); // Initialize _monthlyTotalsFuture
+
+    // Initialize filtered expenses with all expenses
+    Provider.of<ExpenseDatabase>(context, listen: false)
+        .addToFilteredExpenses([]);
   }
 
   void refreshGraphData() {
@@ -139,6 +143,15 @@ class _HomePageState extends State<HomePage> {
         .calculateYearlyTotals();
   }
 
+  final List<String> kategorije = [
+    'Work',
+    'Travel',
+    'Fun',
+    'Food',
+    'Hobby',
+    'Others'
+  ];
+  List<String> selektovaneKategorije = [];
   @override
   Widget build(BuildContext context) {
     return Consumer<ExpenseDatabase>(
@@ -149,9 +162,9 @@ class _HomePageState extends State<HomePage> {
         int currentYear = DateTime.now().year;
 
         int calculateMounthCount(
-            int startYeat, startMonth, currentYear, currentMonth) {
+            int startYear, startMonth, currentYear, currentMonth) {
           int monthCount =
-              (currentYear - starYear) * 12 + currentMonth - startMonth + 1;
+              (currentYear - startYear) * 12 + currentMonth - startMonth + 1;
           return monthCount;
         }
 
@@ -177,73 +190,100 @@ class _HomePageState extends State<HomePage> {
             child: const Icon(Icons.add),
           ),
           body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 245, 212, 156),
-                    Color.fromARGB(255, 249, 190, 89),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 245, 212, 156),
+                  Color.fromARGB(255, 249, 190, 89),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              padding: const EdgeInsets.all(16.0),
-              child: expenseDatabase.allExpense.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No expenses added yet.',
-                        style: GoogleFonts.bebasNeue(
-                          fontSize: 32,
-                          color: const Color.fromARGB(255, 205, 166, 166),
-                          fontWeight: FontWeight.bold,
-                        ),
+            ),
+            padding: const EdgeInsets.all(16.0),
+            child: expenseDatabase.allExpense.isEmpty
+                ? Center(
+                    child: Text(
+                      'No expenses added yet.',
+                      style: GoogleFonts.bebasNeue(
+                        fontSize: 32,
+                        color: const Color.fromARGB(255, 205, 166, 166),
+                        fontWeight: FontWeight.bold,
                       ),
-                    )
-                  : SafeArea(
-                      child: Column(
-                        children: [
-                          // bar graph
-                          SizedBox(
-                            height: 250,
-                            child: FutureBuilder(
-                                future: _monthlyTotalsFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    final monthlyTotals = snapshot.data ?? {};
-
-                                    List<double> monthlySummary = List.generate(
-                                      monthCount,
-                                      (index) =>
-                                          monthlyTotals[startMonth + index] ??
-                                          0.0,
-                                    );
-                                    return MyBarGraph(
-                                        monthlySummary: monthlySummary,
-                                        startMonth: startMonth);
-                                  } else {
-                                    return const Center(
-                                      child: Text('Loading...'),
-                                    );
-                                  }
-                                }),
-                          ),
-
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: expenseDatabase.allExpense.length,
-                              itemBuilder: (context, index) {
-                                final expense =
-                                    expenseDatabase.allExpense[index];
-                                return MyTile(
-                                  expense: expense,
-                                );
-                              },
+                    ),
+                  )
+                : SafeArea(
+                    child: Column(
+                      children: [
+                        // Filter Chips including "All"
+                        Container(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                FilterChip(
+                                  selected: selektovaneKategorije.isEmpty,
+                                  label: Text("All"),
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      if (selected) {
+                                        selektovaneKategorije.clear();
+                                      }
+                                    });
+                                  },
+                                ),
+                                ...kategorije
+                                    .map(
+                                      (kategorija) => FilterChip(
+                                        selected: selektovaneKategorije
+                                            .contains(kategorija),
+                                        label: Text(kategorija),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            if (selected) {
+                                              selektovaneKategorije
+                                                  .add(kategorija);
+                                            } else {
+                                              selektovaneKategorije
+                                                  .remove(kategorija);
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    )
+                                    .toList(),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+
+                        // Display expenses based on selected categories
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: expenseDatabase.allExpense.length,
+                            itemBuilder: (context, index) {
+                              final expense = expenseDatabase.allExpense[index];
+
+                              // If "All" is selected or no specific category is selected, show all expenses
+                              if (selektovaneKategorije.isEmpty ||
+                                  selektovaneKategorije.contains(expense
+                                      .category
+                                      .toString()
+                                      .split('.')
+                                      .last)) {
+                                return MyTile(expense: expense);
+                              }
+
+                              // Otherwise, don't display this expense
+                              return SizedBox.shrink();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
         );
       },
     );
@@ -267,8 +307,6 @@ class _HomePageState extends State<HomePage> {
     final pickedDate = context.read<ExpenseDatabase>().pickedDate;
 
     final expenseDate = pickedDate ?? DateTime.now();
-
-    final uzmiId = context.read<ExpenseDatabase>().povecaj();
 
     final expense = Expense(
       name: name,

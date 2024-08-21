@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tracker/database/expense_database.dart';
+import 'package:tracker/pages/filters_page.dart';
 import 'package:tracker/pages/home_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tracker/pages/intro_page.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login_or_register': (context) => LoginOrRegister(),
           '/home_page': (context) => HomePage(),
+          '/filters_page': (context) => FiltersPage(),
         },
       ),
     );

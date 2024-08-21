@@ -1,8 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tracker/pages/filters_page.dart';
 
-class MyDrawler extends StatelessWidget {
+const kInitialFilter = {
+  Filter.work: false,
+  Filter.food: false,
+  Filter.fun: false,
+  Filter.hobby: false,
+  Filter.travel: false,
+  Filter.others: false,
+};
+
+class MyDrawler extends StatefulWidget {
   const MyDrawler({super.key});
+
+  @override
+  State<MyDrawler> createState() => _MyDrawlerState();
+}
+
+class _MyDrawlerState extends State<MyDrawler> {
+  Map<Filter, bool> _selectedFilters = kInitialFilter;
+
+  void setFilter() async {
+    Navigator.of(context).pop();
+    final result = await Navigator.of(context).push<Map<Filter, bool>>(
+      MaterialPageRoute(
+        builder: (ctx) => const FiltersPage(),
+      ),
+    );
+    setState(() {
+      _selectedFilters = result ?? kInitialFilter;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +78,14 @@ class MyDrawler extends StatelessWidget {
                     Icons.settings_applications,
                     color: Colors.black,
                   ),
-                  title: Text(
-                    'S E T T I N G S',
-                    style: GoogleFonts.bebasNeue(
-                      color: Colors.black,
-                      fontSize: 23,
+                  title: GestureDetector(
+                    onTap: setFilter,
+                    child: Text(
+                      'F I L T E R S',
+                      style: GoogleFonts.bebasNeue(
+                        color: Colors.black,
+                        fontSize: 23,
+                      ),
                     ),
                   ),
                 ),
