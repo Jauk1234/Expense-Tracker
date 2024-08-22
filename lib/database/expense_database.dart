@@ -45,24 +45,35 @@ class ExpenseDatabase extends ChangeNotifier {
     };
 
     _allExpenses.add(newExpense);
+    _updateMonthlyTotals(newExpense);
     notifyListeners();
 
     final response = await supabase.from('tracker').insert(expenseData);
   }
 
   //update - edit expennnse
-  Future<void> updateExpense(String expenseId, Expense updateExpense) async {
+  Future<void> updateExpense(String expenseId, Expense updatedExpense) async {
+    // Find the original expense before updating
+    final originalExpense =
+        _allExpenses.firstWhere((expense) => expense.id == expenseId);
+
+    // Update the monthly totals by subtracting the original expense and adding the updated one
+    _updateMonthlyTotals(originalExpense, isDeleting: true);
+    _updateMonthlyTotals(updatedExpense);
+
+    // Perform the update in the database
     await supabase.from('tracker').update({
-      'id': updateExpense.id,
-      'Name': updateExpense.name,
-      'Description': updateExpense.description,
-      'Amount': updateExpense.amount,
-      'date': updateExpense.date.toIso8601String(),
-      'cateogry': updateExpense.category.toString().split('.').last,
+      'id': updatedExpense.id,
+      'Name': updatedExpense.name,
+      'Description': updatedExpense.description,
+      'Amount': updatedExpense.amount,
+      'date': updatedExpense.date.toIso8601String(),
+      'cateogry': updatedExpense.category.toString().split('.').last,
     }).eq('id', expenseId);
 
+    // Update the expense list
     _allExpenses.removeWhere((expense) => expense.id == expenseId);
-    _allExpenses.add(updateExpense);
+    _allExpenses.add(updatedExpense);
     notifyListeners();
   }
 
@@ -71,16 +82,19 @@ class ExpenseDatabase extends ChangeNotifier {
       String expenseId, Expense expense, BuildContext context) async {
     final expenseIndex = _allExpenses.indexOf(expense);
 
-    // Sačuvaj izbrisani trošak pre nego što ga ukloniš
+    // Save the deleted expense before removing it
     final Expense deletedExpense = expense;
 
-    // Izvrši brisanje iz baze podataka
+    // Update the monthly totals before deletion
+    _updateMonthlyTotals(deletedExpense, isDeleting: true);
+
+    // Perform the deletion from the database
     await supabase.from('tracker').delete().eq('id', expenseId);
 
-    // Ukloni trošak iz liste
+    // Remove the expense from the list
     _allExpenses.removeWhere((expense) => expense.id == expenseId);
 
-    // Prikazi SnackBar sa opcijom Undo
+    // Show SnackBar with an Undo option
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 3),
@@ -88,11 +102,12 @@ class ExpenseDatabase extends ChangeNotifier {
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () async {
-            // Dodaj trošak nazad u listu i bazu podataka
+            // Add the expense back to the list and database
             _allExpenses.insert(expenseIndex, deletedExpense);
+            _updateMonthlyTotals(deletedExpense); // Re-add the amount
             notifyListeners();
 
-            // Dodaj trošak nazad u bazu podataka
+            // Re-insert the expense into the database
             final deletedExp = {
               'id': deletedExpense.id,
               'Name': deletedExpense.name,
@@ -110,6 +125,7 @@ class ExpenseDatabase extends ChangeNotifier {
 
     notifyListeners();
   }
+
 //
 
   // calucate total expdense each month
@@ -131,45 +147,23 @@ class ExpenseDatabase extends ChangeNotifier {
   }
 
   //get start motnh
-  int getStartMonth() {
-    if (_allExpenses.isEmpty) {
-      return DateTime.now().month;
-    }
-    //soritaj
-    _allExpenses.sort((a, b) => a.date.compareTo(b.date));
-    return _allExpenses.first.date.month;
-  }
 
-  //get start year
-  int getStartYear() {
-    if (_allExpenses.isEmpty) {
-      return DateTime.now().year;
-    }
-    //soritaj
-    _allExpenses.sort((a, b) => a.date.compareTo(b.date));
-    return _allExpenses.first.date.year;
-  } // New method to get total for the selected month
-
+  // Method to calculate yearly totals (optional, if needed)
   Future<Map<int, double>> calculateYearlyTotals() async {
-    Map<int, double> monthlyTotals = {};
-
-    // Iterate through expenses and calculate totals
+    Map<int, double> totals = {};
     for (var expense in _allExpenses) {
       int month = expense.date.month;
-      if (!monthlyTotals.containsKey(month)) {
-        monthlyTotals[month] = 0;
-      }
-      monthlyTotals[month] = monthlyTotals[month]! + expense.amount;
-    }
+      double amount = expense.amount;
 
-    // Ensure all months are included
-    for (int month = 1; month <= 12; month++) {
-      if (!monthlyTotals.containsKey(month)) {
-        monthlyTotals[month] = 0;
+      if (totals.containsKey(month)) {
+        totals[month] = totals[month]! + amount;
+      } else {
+        totals[month] = amount;
       }
     }
-
-    return monthlyTotals;
+    _monthlyExpenseTotals = totals;
+    notifyListeners();
+    return totals;
   }
 
   Future<Map<int, double>> calculateMonthlyTotalForSelectedMonth(
@@ -216,5 +210,64 @@ class ExpenseDatabase extends ChangeNotifier {
       }));
     }
     notifyListeners();
+  }
+
+  // Calculate total expense for each month
+  Map<int, double> _monthlyExpenseTotals = {};
+  Map<int, double> get monthlyExpenseTotals => _monthlyExpenseTotals;
+
+  Future<void> calculateMonthlyTotals() async {
+    Map<int, double> monthlyTotals = {};
+
+    for (var expense in _allExpenses) {
+      int month = expense.date.month;
+      if (!monthlyTotals.containsKey(month)) {
+        monthlyTotals[month] = 0;
+      }
+      monthlyTotals[month] = monthlyTotals[month]! + expense.amount;
+    }
+
+    _monthlyExpenseTotals = monthlyTotals;
+    notifyListeners();
+  }
+
+  // Method to update monthly totals
+  void _updateMonthlyTotals(Expense expense, {bool isDeleting = false}) {
+    int month = expense.date.month;
+    double amount = expense.amount;
+
+    if (isDeleting) {
+      // If deleting, subtract the amount from the total
+      if (_monthlyExpenseTotals.containsKey(month)) {
+        _monthlyExpenseTotals[month] = _monthlyExpenseTotals[month]! - amount;
+        if (_monthlyExpenseTotals[month]! <= 0) {
+          _monthlyExpenseTotals.remove(month); // Remove month if total is 0
+        }
+      }
+    } else {
+      // If adding, add the amount to the total
+      if (_monthlyExpenseTotals.containsKey(month)) {
+        _monthlyExpenseTotals[month] = _monthlyExpenseTotals[month]! + amount;
+      } else {
+        _monthlyExpenseTotals[month] = amount;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  // Method to calculate total expenses by category
+  Future<Map<String, double>> calculateCategoryTotals() async {
+    Map<String, double> categoryTotals = {};
+
+    for (var expense in _allExpenses) {
+      String category = expense.category.toString().split('.').last;
+      if (categoryTotals.containsKey(category)) {
+        categoryTotals[category] = categoryTotals[category]! + expense.amount;
+      } else {
+        categoryTotals[category] = expense.amount;
+      }
+    }
+    return categoryTotals;
   }
 }
