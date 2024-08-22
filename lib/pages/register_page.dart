@@ -7,6 +7,8 @@ import 'package:tracker/main.dart';
 import 'package:tracker/pages/home_page.dart';
 import 'package:tracker/provider/auth_provider.dart';
 
+// TODO: Implement [RegisterPage] route
+// TODO: Implement custom [RegisterPage]
 class RegisterPage extends StatelessWidget {
   RegisterPage({
     super.key,
@@ -16,6 +18,7 @@ class RegisterPage extends StatelessWidget {
   final Function()? onTap;
 
   // text editing controllers
+  // TODO: Similar note added elsewhere, regarding controller initialization & disposing
   final emailContoller = TextEditingController();
 
   final passwordController = TextEditingController();
@@ -122,10 +125,7 @@ class RegisterPage extends StatelessWidget {
                       onTap: onTap,
                       child: const Text(
                         'Login now',
-                        style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17),
+                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 17),
                       ),
                     ),
                   ],

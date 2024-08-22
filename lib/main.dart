@@ -12,6 +12,8 @@ import 'package:tracker/provider/drop_down.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // TODO: Secrets, keys and similar are never "hardcoded" into the app.
+  // TODO: Solution example: Consider using Dart environment variables
   await Supabase.initialize(
     url: 'https://xkkhspcxvztgpeebjvkk.supabase.co',
     anonKey:
@@ -20,8 +22,12 @@ void main() async {
   runApp(const MyApp());
 }
 
+// TODO: Not a good place for Supabase instance, lookup DependencyInjection
+// TODO: In flutter global variables are only used if you are using Riverpod
+// TODO: Solution Example: Consider passing the [Supabase.instance] to the [AuthProvider].
 final supabase = Supabase.instance.client;
 
+// TODO: Main should only contain app initialization configuration, extract MyApp to separate class
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -41,7 +47,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        // TODO: Resolve dart analysis in the entire project
         home: IntroPage(),
+        // TODO: Route names are separated with "-" instead of "_"
         routes: {
           '/login_or_register': (context) => LoginOrRegister(),
           '/home_page': (context) => HomePage(),

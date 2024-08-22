@@ -18,6 +18,7 @@ class MyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Could this be done through some of the 3 main buttons?
     return GestureDetector(
       onTap: onTap,
       child: Container(

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
 
+// TODO: Follow naming conventions through project, either it's Page or Screen
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
 
@@ -30,18 +31,17 @@ class InfoScreen extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: 12, // For all 12 months
                   itemBuilder: (context, index) {
+                    // TODO: Here +1, inside _monthName -1, can be avoided both.
                     final month = index + 1;
                     final total = monthlyTotals[month] ?? 0.0;
                     return ListTile(
                       title: Text(
                         _monthName(month),
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                       ),
                       trailing: Text(
                         '\$${total.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     );
                   },

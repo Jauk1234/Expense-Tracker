@@ -10,6 +10,7 @@ class Expense {
   final DateTime date;
   final Category category;
 
+  //TODO: Generate toJson and fromJson using JsonSerializable package
   Expense({
     required this.name,
     required this.description,
@@ -19,4 +20,5 @@ class Expense {
   }) : id = uuid.v4();
 }
 
+//TODO: Export to separate class
 enum Category { Work, Travel, Fun, Food, Hobby, Others }

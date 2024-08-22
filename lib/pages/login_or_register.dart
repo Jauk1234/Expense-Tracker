@@ -9,6 +9,9 @@ class LoginOrRegister extends StatefulWidget {
   State<LoginOrRegister> createState() => _LoginOrRegisterState();
 }
 
+// TODO: This is not needed. Refactor
+// TODO: Login & Register are 2 different screens, if you want to update parts of the screen
+// TODO: based on a button press that's used for different things not for entire pages.
 class _LoginOrRegisterState extends State<LoginOrRegister> {
   bool showLoginPage = true;
   void togglePages() {
@@ -19,6 +22,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Why pass callback instead of using Provider?
     if (showLoginPage) {
       return LoginPage(onTap: togglePages);
     } else {
