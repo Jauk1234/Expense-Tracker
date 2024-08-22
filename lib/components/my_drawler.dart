@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tracker/pages/filters_page.dart';
 
+// TODO: Reconsider this implementation
 const kInitialFilter = {
   Filter.work: false,
   Filter.food: false,
@@ -18,6 +19,7 @@ class MyDrawler extends StatefulWidget {
   State<MyDrawler> createState() => _MyDrawlerState();
 }
 
+// TODO: How to access this through UI?
 class _MyDrawlerState extends State<MyDrawler> {
   Map<Filter, bool> _selectedFilters = kInitialFilter;
 

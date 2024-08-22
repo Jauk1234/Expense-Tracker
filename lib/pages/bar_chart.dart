@@ -10,6 +10,7 @@ class BarChartPage extends StatefulWidget {
   State<BarChartPage> createState() => _BarChartPageState();
 }
 
+// TODO: Refactor, can be implemented without StatefulWidget
 class _BarChartPageState extends State<BarChartPage> {
   late Future<Map<String, double>> _categoryTotalsFuture;
 
@@ -20,8 +21,7 @@ class _BarChartPageState extends State<BarChartPage> {
   }
 
   Future<Map<String, double>> _fetchCategoryTotals() async {
-    final expenseDatabase =
-        Provider.of<ExpenseDatabase>(context, listen: false);
+    final expenseDatabase = Provider.of<ExpenseDatabase>(context, listen: false);
     final totals = await expenseDatabase.calculateCategoryTotals();
     return totals;
   }

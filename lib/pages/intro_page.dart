@@ -9,7 +9,9 @@ class IntroPage extends StatefulWidget {
   State<IntroPage> createState() => _IntroPageState();
 }
 
+// TODO: Refactor to user Provider instead of a StatefulWidget
 class _IntroPageState extends State<IntroPage> {
+  // TODO: Naming conventions
   int ind = 0;
   void idiDalje() {
     setState(() {
@@ -29,6 +31,7 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Look up SafeArea widget, on iOS this page is overflowing.
     return Scaffold(
       body: Stack(
         children: [
@@ -42,7 +45,8 @@ class _IntroPageState extends State<IntroPage> {
           ),
           Center(
             // Center the whole Column within the Stack
-
+            // TODO: This is called a "Pyramid", whenever this amount of nesting widgets happens
+            // TODO: instead export widgets into separate classes.
             child: Container(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -87,16 +91,12 @@ class _IntroPageState extends State<IntroPage> {
                           onTap: idiDalje,
                           text: 'Let\'s Go!',
                           icon: Icons.arrow_right,
-                          gradientColors: const [
-                            Color.fromARGB(255, 245, 35, 35),
-                            Color.fromARGB(255, 255, 3, 3)
-                          ],
+                          gradientColors: const [Color.fromARGB(255, 245, 35, 35), Color.fromARGB(255, 255, 3, 3)],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Effortlessly manage and monitor your spending with our Expense Tracker app. Track expenses, set budgets, and gain insights into your financial habits to stay on top of your personal finances.',
-                          style: GoogleFonts.volkhov(
-                              color: Colors.white, fontSize: 14),
+                          style: GoogleFonts.volkhov(color: Colors.white, fontSize: 14),
                         ),
                       ],
                     )
@@ -105,10 +105,7 @@ class _IntroPageState extends State<IntroPage> {
                       children: [
                         MyButton(
                           textColor: Colors.black,
-                          gradientColors: const [
-                            Color.fromARGB(255, 245, 35, 35),
-                            Color.fromARGB(255, 255, 3, 3)
-                          ],
+                          gradientColors: const [Color.fromARGB(255, 245, 35, 35), Color.fromARGB(255, 255, 3, 3)],
                           text: 'Continue with Email',
                           onTap: _submit,
                           icon: Icons.arrow_right,
@@ -116,8 +113,7 @@ class _IntroPageState extends State<IntroPage> {
                         const SizedBox(height: 8),
                         Text(
                           'Effortlessly manage and monitor your spending with our Expense Tracker app. Track expenses, set budgets, and gain insights into your financial habits to stay on top of your personal finances.',
-                          style: GoogleFonts.volkhov(
-                              color: Colors.white, fontSize: 14),
+                          style: GoogleFonts.volkhov(color: Colors.white, fontSize: 14),
                         ),
                       ],
                     ),

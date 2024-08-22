@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tracker/components/my_button.dart';
 import 'package:tracker/components/my_textfield.dart';
 
+// TODO: Implement [LoginPage] route
 class LoginPage extends StatelessWidget {
   LoginPage({
     super.key,
@@ -11,6 +12,8 @@ class LoginPage extends StatelessWidget {
 
   final Function()? onTap;
 
+  // TODO: Controllers are initialized in "initState" method
+  // TODO: Controllers need to be disposed in "dispose"
   // text editing controllers
   final emailContoller = TextEditingController();
 
@@ -44,10 +47,7 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 50),
                 const Text(
                   'Welcome!',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
                 ),
 
                 //usernname textfield

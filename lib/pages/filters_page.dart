@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+// TODO: Export
 enum Filter {
   work,
   fun,
@@ -10,6 +11,7 @@ enum Filter {
   others,
 }
 
+// TODO: How to access this?
 class FiltersPage extends StatefulWidget {
   const FiltersPage({super.key});
 
@@ -17,6 +19,7 @@ class FiltersPage extends StatefulWidget {
   State<FiltersPage> createState() => _FiltersPageState();
 }
 
+// TODO: Can it be done without StatefulWidget
 class _FiltersPageState extends State<FiltersPage> {
   var _workFilter = false;
   var _foodFilter = false;
@@ -33,6 +36,7 @@ class _FiltersPageState extends State<FiltersPage> {
         canPop: false,
         onPopInvoked: (bool didPop) {
           if (didPop) return;
+          // TODO: Consider these route arguments
           Navigator.of(context).pop({
             Filter.work: _workFilter,
             Filter.food: _foodFilter,

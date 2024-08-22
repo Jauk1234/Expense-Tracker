@@ -1,5 +1,6 @@
 import 'package:tracker/components/individual_bar.dart';
 
+// TODO: Is this needed?
 class BarData {
   final double workAmount;
   final double travelAmount;

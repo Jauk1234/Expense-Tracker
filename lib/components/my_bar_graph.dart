@@ -14,6 +14,7 @@ class MyBarGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Assuming the categories are always in the same order
+    // TODO: Refactor flow for BarData, overkill, reconsider BarData object.
     final BarData myBarData = BarData(
       workAmount: weeklySummary[0],
       travelAmount: weeklySummary[1],

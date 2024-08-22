@@ -8,6 +8,7 @@ class MyTextfield extends StatelessWidget {
     required this.obscureText,
   });
 
+  // TODO: Type define variables.
   final controller;
   final String hintText;
   final obscureText;

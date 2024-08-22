@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tracker/models/expense.dart';
 
 class ExpenseDatabase extends ChangeNotifier {
+  // TODO: Duplicate [SupabaseInstance], one is already defined in [main.dart]
   final supabase = Supabase.instance.client;
   DateTime? _pickedDate;
   DateTime? get pickedDate => _pickedDate;
@@ -49,13 +50,13 @@ class ExpenseDatabase extends ChangeNotifier {
     notifyListeners();
 
     final response = await supabase.from('tracker').insert(expenseData);
+    // TODO: Error handling missing
   }
 
   //update - edit expennnse
   Future<void> updateExpense(String expenseId, Expense updatedExpense) async {
     // Find the original expense before updating
-    final originalExpense =
-        _allExpenses.firstWhere((expense) => expense.id == expenseId);
+    final originalExpense = _allExpenses.firstWhere((expense) => expense.id == expenseId);
 
     // Update the monthly totals by subtracting the original expense and adding the updated one
     _updateMonthlyTotals(originalExpense, isDeleting: true);
@@ -78,8 +79,7 @@ class ExpenseDatabase extends ChangeNotifier {
   }
 
   //delete
-  Future<void> deleteExpense(
-      String expenseId, Expense expense, BuildContext context) async {
+  Future<void> deleteExpense(String expenseId, Expense expense, BuildContext context) async {
     final expenseIndex = _allExpenses.indexOf(expense);
 
     // Save the deleted expense before removing it
@@ -166,14 +166,12 @@ class ExpenseDatabase extends ChangeNotifier {
     return totals;
   }
 
-  Future<Map<int, double>> calculateMonthlyTotalForSelectedMonth(
-      DateTime selectedMonth) async {
+  Future<Map<int, double>> calculateMonthlyTotalForSelectedMonth(DateTime selectedMonth) async {
     Map<int, double> monthlyTotals = {};
 
     // Iterate through expenses and calculate totals
     for (var expense in _allExpenses) {
-      if (expense.date.year == selectedMonth.year &&
-          expense.date.month == selectedMonth.month) {
+      if (expense.date.year == selectedMonth.year && expense.date.month == selectedMonth.month) {
         int month = expense.date.month;
         if (!monthlyTotals.containsKey(month)) {
           monthlyTotals[month] = 0;
@@ -205,8 +203,7 @@ class ExpenseDatabase extends ChangeNotifier {
       // Filter expenses based on selected categories
       _filteredExpenses.clear();
       _filteredExpenses.addAll(_allExpenses.where((expense) {
-        return selectedCategories
-            .contains(expense.category.toString().split('.').last);
+        return selectedCategories.contains(expense.category.toString().split('.').last);
       }));
     }
     notifyListeners();

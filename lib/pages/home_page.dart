@@ -16,6 +16,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // TODO: Controllers are initialized in "initState" method
+  // TODO: Controllers need to be disposed in "dispose"
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
@@ -26,29 +28,27 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     refreshGraphData();
-    Provider.of<ExpenseDatabase>(context, listen: false)
-        .addToFilteredExpenses([]);
+    // TODO: This is old syntax for Provider accessing, use new one instead.
+    // TODO: Why is this needed, this should be handled in the initialization of the provider.
+    Provider.of<ExpenseDatabase>(context, listen: false).addToFilteredExpenses([]);
   }
 
+  // TODO: This method does not do anything
   void refreshGraphData() {
-    _monthlyTotalsFuture = Provider.of<ExpenseDatabase>(context, listen: false)
-        .calculateYearlyTotals();
+    // TODO: This is old syntax for Provider accessing, use new one instead.
+    // TODO: This field does not do anything
+    _monthlyTotalsFuture = Provider.of<ExpenseDatabase>(context, listen: false).calculateYearlyTotals();
   }
 
-  final List<String> kategorije = [
-    'Work',
-    'Travel',
-    'Fun',
-    'Food',
-    'Hobby',
-    'Others'
-  ];
+  // TODO: Why not use the same enum as Used in [_allCategory] - enum Category
+  final List<String> kategorije = ['Work', 'Travel', 'Fun', 'Food', 'Hobby', 'Others'];
   List<String> selektovaneKategorije = [];
 
   @override
   Widget build(BuildContext context) {
     Widget bodyContent;
 
+    // TODO: Refactor needed, not good way of handling tab switching
     switch (_currentIndex) {
       case 0:
         bodyContent = ExpensesContent(
@@ -77,11 +77,11 @@ class _HomePageState extends State<HomePage> {
         );
     }
 
+    // TODO: Prevent pyramid
     return Scaffold(
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
-              onPressed: () => _showAddExpenseDialog(context,
-                  Provider.of<ExpenseDatabase>(context, listen: false)),
+              onPressed: () => _showAddExpenseDialog(context, Provider.of<ExpenseDatabase>(context, listen: false)),
               child: const Icon(Icons.add),
             )
           : null,
@@ -124,6 +124,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // TODO: UI and business logic should be separated
+  // TODO: In classes where widgets are defined business logic should be reduced to only calling the methods
+  // TODO: Refactor
+
   bool _validateAndSaveExpense(BuildContext context) {
     refreshGraphData();
     final name = nameController.text;
@@ -151,8 +155,7 @@ class _HomePageState extends State<HomePage> {
       category: context.read<DropDown>().selectedCategory,
     );
 
-    Provider.of<ExpenseDatabase>(context, listen: false)
-        .createNewExpense(expense);
+    Provider.of<ExpenseDatabase>(context, listen: false).createNewExpense(expense);
     refreshGraphData();
     return true;
   }
@@ -197,11 +200,13 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// TODO: Refactor
 class ExpensesContent extends StatefulWidget {
   final Function showAddExpenseDialog;
   final TextEditingController nameController;
   final TextEditingController descController;
   final TextEditingController amountController;
+  // TODO: Consider if the parent should pass the categories to this widget
   final List<String> kategorije;
   final List<String> selektovaneKategorije;
 
@@ -225,6 +230,7 @@ class _ExpensesContentState extends State<ExpensesContent> {
   @override
   void initState() {
     super.initState();
+    // TODO: Overkill, use spread operator
     selektovaneKategorije = List.from(widget.selektovaneKategorije);
   }
 
@@ -232,6 +238,7 @@ class _ExpensesContentState extends State<ExpensesContent> {
   Widget build(BuildContext context) {
     return Consumer<ExpenseDatabase>(
       builder: (context, expenseDatabase, child) {
+        // TODO: Use if - else , for cleaner code, and better readability
         return expenseDatabase.allExpense.isEmpty
             ? Center(
                 child: Text(
@@ -252,6 +259,7 @@ class _ExpensesContentState extends State<ExpensesContent> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
+                          // TODO: Consider adding "All" to Category enum, then use mapping to create all chips
                           FilterChip(
                             selected: selektovaneKategorije.isEmpty,
                             label: const Text("All"),
@@ -266,23 +274,18 @@ class _ExpensesContentState extends State<ExpensesContent> {
                           ...widget.kategorije
                               .map(
                                 (kategorija) => FilterChip(
-                                  selected: selektovaneKategorije
-                                      .contains(kategorija),
+                                  selected: selektovaneKategorije.contains(kategorija),
                                   label: Text(kategorija),
                                   onSelected: (selected) {
                                     setState(() {
                                       if (selected) {
                                         selektovaneKategorije.add(kategorija);
                                       } else {
-                                        selektovaneKategorije
-                                            .remove(kategorija);
+                                        selektovaneKategorije.remove(kategorija);
                                       }
                                     });
                                     // Notify the ExpenseDatabase to update the filtered expenses
-                                    Provider.of<ExpenseDatabase>(context,
-                                            listen: false)
-                                        .addToFilteredExpenses(
-                                            selektovaneKategorije);
+                                    Provider.of<ExpenseDatabase>(context, listen: false).addToFilteredExpenses(selektovaneKategorije);
                                   },
                                 ),
                               )
@@ -294,8 +297,7 @@ class _ExpensesContentState extends State<ExpensesContent> {
                       child: ListView.builder(
                         itemCount: expenseDatabase.filteredExpense.length,
                         itemBuilder: (context, index) {
-                          final expense =
-                              expenseDatabase.filteredExpense[index];
+                          final expense = expenseDatabase.filteredExpense[index];
                           return MyTile(expense: expense);
                         },
                       ),
@@ -308,6 +310,8 @@ class _ExpensesContentState extends State<ExpensesContent> {
   }
 }
 
+// TODO: Extract to separate class
+// TODO: Consider should these controllers be passed to this widget?
 class ExpenseForm extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController descController;
@@ -358,8 +362,7 @@ class ExpenseForm extends StatelessWidget {
                   dropDownProvider.setCategoryValue(newValue);
                 }
               },
-              items:
-                  dropDownProvider.allCategory.map<DropdownMenuItem<Category>>(
+              items: dropDownProvider.allCategory.map<DropdownMenuItem<Category>>(
                 (Category category) {
                   return DropdownMenuItem<Category>(
                     value: category,
@@ -370,6 +373,8 @@ class ExpenseForm extends StatelessWidget {
             ),
           ],
         ),
+
+        // TODO: Can be replaced with a simple context.watch, no need for consumer here, overkill
         Consumer<ExpenseDatabase>(
           builder: (context, expenseDatabase, child) {
             return Row(
@@ -381,9 +386,7 @@ class ExpenseForm extends StatelessWidget {
                   icon: const Icon(Icons.calendar_month),
                 ),
                 Text(
-                  expenseDatabase.pickedDate != null
-                      ? expenseDatabase.pickedDate.toString().split(' ')[0]
-                      : 'No date picked',
+                  expenseDatabase.pickedDate != null ? expenseDatabase.pickedDate.toString().split(' ')[0] : 'No date picked',
                 ),
               ],
             );

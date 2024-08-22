@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
 
+// TODO: Widget not used anywhere in project.
 class MyIconButton extends StatelessWidget {
   const MyIconButton({super.key});
 

@@ -6,6 +6,7 @@ import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/models/expense.dart';
 import 'package:tracker/provider/drop_down.dart';
 
+// TODO: Do not use "My" prefix when working in production code :-)
 class MyTile extends StatelessWidget {
   MyTile({super.key, required this.expense});
 
@@ -13,13 +14,11 @@ class MyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController nameController =
-        TextEditingController(text: expense.name);
-    TextEditingController descController =
-        TextEditingController(text: expense.description);
-    TextEditingController amountController =
-        TextEditingController(text: expense.amount.toString());
+    TextEditingController nameController = TextEditingController(text: expense.name);
+    TextEditingController descController = TextEditingController(text: expense.description);
+    TextEditingController amountController = TextEditingController(text: expense.amount.toString());
 
+    // TODO: Images go to assets instead of lib/ directory
     String getImagePath(String category) {
       if (category == 'Work') {
         return 'lib/images/work.png';
@@ -38,6 +37,9 @@ class MyTile extends StatelessWidget {
       }
     }
 
+    // TODO: Consider implementing and using a wrapper class for all dialog.
+    // TODO: Consider what they all have in common.
+    // TODO: Increase code reusability through entire project
     void _openDialog(Expense expense, BuildContext context) {
       showDialog(
         context: context,
@@ -53,8 +55,7 @@ class MyTile extends StatelessWidget {
                 ),
                 TextField(
                   controller: descController,
-                  decoration:
-                      InputDecoration(hintText: 'Enter new description'),
+                  decoration: InputDecoration(hintText: 'Enter new description'),
                 ),
                 TextField(
                   controller: amountController,
@@ -79,13 +80,11 @@ class MyTile extends StatelessWidget {
                               value.setCategoryValue(newValue);
                             }
                           },
-                          items:
-                              value.allCategory.map<DropdownMenuItem<Category>>(
+                          items: value.allCategory.map<DropdownMenuItem<Category>>(
                             (Category category) {
                               return DropdownMenuItem<Category>(
                                 value: category,
-                                child:
-                                    Text(category.toString().split('.').last),
+                                child: Text(category.toString().split('.').last),
                               );
                             },
                           ).toList(),
@@ -106,11 +105,7 @@ class MyTile extends StatelessWidget {
                           icon: Icon(Icons.calendar_month),
                         ),
                         Text(
-                          expenseDatabase.pickedDate != null
-                              ? expenseDatabase.pickedDate
-                                  .toString()
-                                  .split(' ')[0]
-                              : 'No date picked',
+                          expenseDatabase.pickedDate != null ? expenseDatabase.pickedDate.toString().split(' ')[0] : 'No date picked',
                         ),
                       ],
                     );
@@ -122,6 +117,8 @@ class MyTile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  // TODO: Check 3 main types of buttons used in Flutter, refactor
+                  // TODO: https://docs.flutter.dev/release/breaking-changes/buttons
                   MaterialButton(
                     onPressed: () {
                       Navigator.pop(context);
@@ -130,23 +127,11 @@ class MyTile extends StatelessWidget {
                   ),
                   MaterialButton(
                     onPressed: () async {
-                      String updateName = nameController.text.isNotEmpty
-                          ? nameController.text
-                          : expense.name;
-                      String updateDesc = descController.text.isNotEmpty
-                          ? descController.text
-                          : expense.description;
-                      double updatedAmount = amountController.text.isNotEmpty
-                          ? double.parse(amountController.text)
-                          : expense.amount;
-                      final selectedCategory =
-                          Provider.of<DropDown>(context, listen: false)
-                                  .selectedCategory ??
-                              expense.category;
-                      final selectedDate =
-                          Provider.of<ExpenseDatabase>(context, listen: false)
-                                  .pickedDate ??
-                              expense.date;
+                      String updateName = nameController.text.isNotEmpty ? nameController.text : expense.name;
+                      String updateDesc = descController.text.isNotEmpty ? descController.text : expense.description;
+                      double updatedAmount = amountController.text.isNotEmpty ? double.parse(amountController.text) : expense.amount;
+                      final selectedCategory = Provider.of<DropDown>(context, listen: false).selectedCategory ?? expense.category;
+                      final selectedDate = Provider.of<ExpenseDatabase>(context, listen: false).pickedDate ?? expense.date;
 
                       Expense updatedExpense = Expense(
                         name: updateName,
@@ -156,10 +141,8 @@ class MyTile extends StatelessWidget {
                         category: selectedCategory,
                       );
 
-                      final expenseDatabase =
-                          Provider.of<ExpenseDatabase>(context, listen: false);
-                      await expenseDatabase.updateExpense(
-                          expense.id, updatedExpense);
+                      final expenseDatabase = Provider.of<ExpenseDatabase>(context, listen: false);
+                      await expenseDatabase.updateExpense(expense.id, updatedExpense);
 
                       Navigator.pop(context);
                     },
@@ -176,6 +159,7 @@ class MyTile extends StatelessWidget {
 
     final imagePath = getImagePath(expense.category.toString().split('.').last);
 
+    // TODO: Refactor
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       height: 270,
@@ -193,9 +177,7 @@ class MyTile extends StatelessWidget {
             children: [
               // Image
               ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20)),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                 child: Image.asset(
                   imagePath,
                   height: imageHeight,
@@ -224,8 +206,7 @@ class MyTile extends StatelessWidget {
                         ),
                         Text(
                           expense.category.toString().split('.').last,
-                          style:
-                              TextStyle(color: Colors.grey[500], fontSize: 17),
+                          style: TextStyle(color: Colors.grey[500], fontSize: 17),
                         ),
                       ],
                     ),
@@ -252,13 +233,11 @@ class MyTile extends StatelessWidget {
                           children: [
                             Text(
                               expense.date.toLocal().toString().split(' ')[0],
-                              style: TextStyle(
-                                  color: Colors.grey[600], fontSize: 17),
+                              style: TextStyle(color: Colors.grey[600], fontSize: 17),
                             ),
                             Text(
                               '${expense.amount}\$',
-                              style: TextStyle(
-                                  color: Colors.grey[500], fontSize: 17),
+                              style: TextStyle(color: Colors.grey[500], fontSize: 17),
                             ),
                           ],
                         ),
@@ -269,20 +248,16 @@ class MyTile extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
-                                  onPressed: () =>
-                                      _openDialog(expense, context),
+                                  onPressed: () => _openDialog(expense, context),
                                   icon: Icon(Icons.edit),
                                 ),
                                 const SizedBox(width: 20),
                                 IconButton(
                                   onPressed: () async {
                                     if (expense.id.isNotEmpty) {
-                                      final expenseDatabase =
-                                          Provider.of<ExpenseDatabase>(context,
-                                              listen: false);
+                                      final expenseDatabase = Provider.of<ExpenseDatabase>(context, listen: false);
 
-                                      await expenseDatabase.deleteExpense(
-                                          expense.id, expense, context);
+                                      await expenseDatabase.deleteExpense(expense.id, expense, context);
                                     }
                                   },
                                   icon: Icon(Icons.delete),
