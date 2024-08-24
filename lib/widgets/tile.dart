@@ -1,13 +1,11 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/models/expense.dart';
 import 'package:tracker/provider/drop_down.dart';
 
-class MyTile extends StatelessWidget {
-  MyTile({super.key, required this.expense});
+class Tile extends StatelessWidget {
+  Tile({super.key, required this.expense});
 
   final Expense expense;
 
@@ -122,13 +120,14 @@ class MyTile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  MaterialButton(
+                  ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
                     child: Text('Cancel'),
                   ),
-                  MaterialButton(
+                  SizedBox(width: 8),
+                  ElevatedButton(
                     onPressed: () async {
                       String updateName = nameController.text.isNotEmpty
                           ? nameController.text
@@ -163,11 +162,10 @@ class MyTile extends StatelessWidget {
 
                       Navigator.pop(context);
                     },
-                    child: Text('Save'),
+                    child: const Text('Save'),
                   ),
                 ],
               ),
-              // Save button
             ],
           );
         },
@@ -285,7 +283,7 @@ class MyTile extends StatelessWidget {
                                           expense.id, expense, context);
                                     }
                                   },
-                                  icon: Icon(Icons.delete),
+                                  icon: const Icon(Icons.delete),
                                 )
                               ],
                             );

@@ -1,30 +1,38 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:tracker/components/bar_graph_data.dart';
-import 'package:tracker/components/individual_bar.dart';
+import 'package:tracker/models/expense.dart';
+import 'package:tracker/widgets/individual_bar.dart';
 
 class MyBarGraph extends StatelessWidget {
   const MyBarGraph({
     super.key,
-    required this.weeklySummary,
+    required this.expenses,
   });
 
-  final List<double> weeklySummary;
+  final List<Expense> expenses;
 
   @override
   Widget build(BuildContext context) {
-    // Assuming the categories are always in the same order
-    final BarData myBarData = BarData(
-      workAmount: weeklySummary[0],
-      travelAmount: weeklySummary[1],
-      funAmount: weeklySummary[2],
-      foodAmount: weeklySummary[3],
-      hobbyAmount: weeklySummary[4],
-      othersAmount: weeklySummary[5],
-    );
-    myBarData.initializeBarData();
+    // Agregirajte podatke po kategorijama
+    final categoryTotals = <Category, double>{};
+    for (var expense in expenses) {
+      categoryTotals.update(
+        expense.category,
+        (value) => value + expense.amount,
+        ifAbsent: () => expense.amount,
+      );
+    }
 
-    double maxY = weeklySummary.reduce((a, b) => a > b ? a : b);
+    final barData = [
+      IndividualBar(x: 0, y: categoryTotals[Category.Work] ?? 0),
+      IndividualBar(x: 1, y: categoryTotals[Category.Travel] ?? 0),
+      IndividualBar(x: 2, y: categoryTotals[Category.Fun] ?? 0),
+      IndividualBar(x: 3, y: categoryTotals[Category.Food] ?? 0),
+      IndividualBar(x: 4, y: categoryTotals[Category.Hobby] ?? 0),
+      IndividualBar(x: 5, y: categoryTotals[Category.Others] ?? 0),
+    ];
+
+    double maxY = barData.fold(0, (max, data) => data.y > max ? data.y : max);
 
     return BarChart(
       BarChartData(
@@ -44,7 +52,7 @@ class MyBarGraph extends StatelessWidget {
             ),
           ),
         ),
-        barGroups: myBarData.barData
+        barGroups: barData
             .map(
               (data) => BarChartGroupData(
                 x: data.x,
@@ -56,7 +64,7 @@ class MyBarGraph extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     backDrawRodData: BackgroundBarChartRodData(
                       show: true,
-                      toY: maxY + 10, // Ensure background rod covers the maxY
+                      toY: maxY + 10,
                       color: Colors.grey[200],
                     ),
                   ),
@@ -100,17 +108,4 @@ Widget getBottomTitles(double value, TitleMeta meta) {
       break;
   }
   return SideTitleWidget(child: text, axisSide: meta.axisSide);
-}
-
-Widget getLeftTitles(double value, TitleMeta meta) {
-  return SideTitleWidget(
-    axisSide: meta.axisSide,
-    child: Text(
-      value.toString(),
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-      ),
-    ),
-  );
 }

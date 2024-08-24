@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:tracker/components/my_button.dart';
-import 'package:tracker/components/my_textfield.dart';
+import 'package:tracker/widgets/my_button.dart';
+import 'package:tracker/widgets/my_textfield.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tracker/components/my_button.dart';
-import 'package:tracker/components/my_textfield.dart';
+import 'package:tracker/widgets/my_button.dart';
+import 'package:tracker/widgets/my_textfield.dart';
 import 'package:tracker/main.dart';
 import 'package:tracker/pages/home_page.dart';
 import 'package:tracker/provider/auth_provider.dart';

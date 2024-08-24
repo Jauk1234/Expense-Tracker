@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tracker/components/my_bar_graph.dart';
+import 'package:tracker/models/expense.dart';
+import 'package:tracker/widgets/my_bar_graph.dart';
 import 'package:tracker/database/expense_database.dart';
 
 class BarChartPage extends StatefulWidget {
-  const BarChartPage({super.key});
+  const BarChartPage({super.key, required this.expenses});
+
+  final List<Expense> expenses;
 
   @override
   State<BarChartPage> createState() => _BarChartPageState();
@@ -61,7 +64,10 @@ class _BarChartPageState extends State<BarChartPage> {
                 ];
                 return SizedBox(
                   height: 400,
-                  child: MyBarGraph(weeklySummary: weeklySummary),
+                  child: MyBarGraph(
+                    expenses:
+                        widget.expenses, // Ovdje prosledjujete unesene troškove
+                  ),
                 );
               }
             },
