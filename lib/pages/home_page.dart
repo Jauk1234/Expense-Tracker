@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/models/expense.dart';
 import 'package:tracker/pages/bar_chart.dart';
-import 'package:tracker/pages/info_screen.dart';
+import 'package:tracker/pages/info_page.dart';
 import 'package:tracker/provider/drop_down.dart';
 import 'package:tracker/widgets/expense_content.dart';
 import 'package:tracker/widgets/expense_form.dart';
@@ -17,18 +17,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descController = TextEditingController();
-  final TextEditingController amountController = TextEditingController();
+  late final TextEditingController nameController;
+  late final TextEditingController descController;
+  late final TextEditingController amountController;
   int _currentIndex = 0;
   Future<Map<int, double>>? _monthlyTotalsFuture;
 
   @override
   void initState() {
     super.initState();
-    refreshGraphData();
-    Provider.of<ExpenseDatabase>(context, listen: false)
-        .addToFilteredExpenses([]);
+    nameController = TextEditingController();
+    descController = TextEditingController();
+    amountController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descController.dispose();
+    amountController.dispose();
+    super.dispose();
   }
 
   void refreshGraphData() {
@@ -62,7 +70,7 @@ class _HomePageState extends State<HomePage> {
         );
         break;
       case 1:
-        bodyContent = const InfoScreen();
+        bodyContent = const InfoPage();
         break;
       case 2:
         bodyContent = Consumer<ExpenseDatabase>(
@@ -129,45 +137,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  bool _validateAndSaveExpense(BuildContext context) {
-    refreshGraphData();
-    final name = nameController.text;
-    final description = descController.text;
-    final amountString = amountController.text;
-
-    if (name.isEmpty || amountString.isEmpty) {
-      return false;
-    }
-
-    final amount = double.tryParse(amountString);
-    if (amount == null) {
-      return false;
-    }
-
-    final pickedDate = context.read<ExpenseDatabase>().pickedDate;
-
-    final expenseDate = pickedDate ?? DateTime.now();
-
-    final expense = Expense(
-      name: name,
-      description: description,
-      amount: amount,
-      date: expenseDate,
-      category: context.read<DropDown>().selectedCategory,
-    );
-
-    Provider.of<ExpenseDatabase>(context, listen: false)
-        .createNewExpense(expense);
-    refreshGraphData();
-    return true;
-  }
-
-  void _showAddExpenseDialog(BuildContext context, ExpenseDatabase expense) {
+  void _showAddExpenseDialog(
+      BuildContext context, ExpenseDatabase expenseDatabase) {
     showDialog(
       context: context,
       builder: (context) => CustomDialogWrapper(
         title: 'New Expense',
-        content: Consumer<DropDown>(
+        content: Consumer<DropDownProvider>(
           builder: (context, dropDownProvider, child) => ExpenseForm(
             nameController: nameController,
             descController: descController,
@@ -187,7 +163,19 @@ class _HomePageState extends State<HomePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (_validateAndSaveExpense(context)) {
+              final name = nameController.text;
+              final description = descController.text;
+              final amountString = amountController.text;
+              final selectedCategory =
+                  context.read<DropDownProvider>().selectedCategory;
+
+              if (expenseDatabase.validateAndSaveExpense(
+                name: name,
+                description: description,
+                amountString: amountString,
+                pickedDate: context.read<ExpenseDatabase>().pickedDate,
+                selectedCategory: selectedCategory,
+              )) {
                 Navigator.pop(context);
                 nameController.clear();
                 amountController.clear();

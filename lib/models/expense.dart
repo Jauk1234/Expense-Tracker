@@ -1,3 +1,4 @@
+import 'package:tracker/models/category.dart';
 import 'package:uuid/uuid.dart';
 
 final uuid = Uuid();
@@ -10,6 +11,7 @@ class Expense {
   final DateTime date;
   final Category category;
 
+  //TODO: Generate toJson and fromJson using JsonSerializable package
   Expense({
     required this.name,
     required this.description,
@@ -18,5 +20,3 @@ class Expense {
     required this.category,
   }) : id = uuid.v4();
 }
-
-enum Category { Work, Travel, Fun, Food, Hobby, Others }

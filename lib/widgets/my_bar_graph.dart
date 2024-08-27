@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:tracker/models/expense.dart';
 import 'package:tracker/widgets/individual_bar.dart';
+import 'package:tracker/models/category.dart';
 
 class MyBarGraph extends StatelessWidget {
   const MyBarGraph({

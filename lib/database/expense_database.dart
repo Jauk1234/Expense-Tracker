@@ -1,15 +1,22 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tracker/main.dart';
+import 'package:tracker/models/category.dart';
 import 'package:tracker/models/expense.dart';
 
 class ExpenseDatabase extends ChangeNotifier {
+  //??????
   final supabase = Supabase.instance.client;
+  //?????
   DateTime? _pickedDate;
   DateTime? get pickedDate => _pickedDate;
   DateTime initialDate = DateTime.now();
   DateTime firstDate = DateTime(2024);
   DateTime lastDate = DateTime.now();
+  ExpenseDatabase() {
+    // Initialize with empty filter
+    addToFilteredExpenses([]);
+  }
 
   void pickDate(BuildContext context) {
     showDatePicker(
@@ -44,11 +51,20 @@ class ExpenseDatabase extends ChangeNotifier {
       'cateogry': newExpense.category.toString().split('.').last,
     };
 
-    _allExpenses.add(newExpense);
-    _updateMonthlyTotals(newExpense);
-    notifyListeners();
+    try {
+      _allExpenses.add(newExpense);
+      _updateMonthlyTotals(newExpense);
+      notifyListeners();
 
-    final response = await supabase.from('tracker').insert(expenseData);
+      final response = await supabase.from('tracker').insert(expenseData);
+
+      if (response == null || response.error != null) {
+        print('Error inserting expense: ${response?.error?.message}');
+        throw Exception('Failed to insert expense');
+      }
+    } catch (e) {
+      print('Error creating new expense: $e');
+    }
   }
 
   //update - edit expennnse
@@ -269,5 +285,34 @@ class ExpenseDatabase extends ChangeNotifier {
       }
     }
     return categoryTotals;
+  }
+
+  bool validateAndSaveExpense({
+    required String name,
+    required String description,
+    required String amountString,
+    DateTime? pickedDate,
+    required Category selectedCategory,
+  }) {
+    if (name.isEmpty || amountString.isEmpty) {
+      return false;
+    }
+
+    final amount = double.tryParse(amountString);
+    if (amount == null) {
+      return false;
+    }
+
+    final expenseDate = pickedDate ?? DateTime.now();
+    final expense = Expense(
+      name: name,
+      description: description,
+      amount: amount,
+      date: expenseDate,
+      category: selectedCategory,
+    );
+
+    createNewExpense(expense);
+    return true;
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/models/expense.dart';
 import 'package:tracker/provider/drop_down.dart';
+import 'package:tracker/models/category.dart';
 
 class Tile extends StatelessWidget {
   Tile({super.key, required this.expense});
@@ -20,17 +21,17 @@ class Tile extends StatelessWidget {
 
     String getImagePath(String category) {
       if (category == 'Work') {
-        return 'lib/images/work.png';
+        return 'assets/work.png';
       } else if (category == 'Travel') {
-        return "lib/images/imagesTile/travel.jpg";
+        return "assets/travel.jpg";
       } else if (category == 'Food') {
-        return "lib/images/imagesTile/food.jpg";
+        return "assets/food.jpg";
       } else if (category == 'Others') {
-        return "lib/images/imagesTile/others.jpg";
+        return "assets/others.jpg";
       } else if (category == 'Fun') {
-        return "lib/images/imagesTile/fun.jpg";
+        return "assets/fun.jpg";
       } else if (category == 'Hobby') {
-        return "lib/images/imagesTile/hobi.webp";
+        return "assets/hobi.webp";
       } else {
         return '';
       }
@@ -58,7 +59,7 @@ class Tile extends StatelessWidget {
                   controller: amountController,
                   decoration: InputDecoration(hintText: 'Enter new amount'),
                 ),
-                Consumer<DropDown>(
+                Consumer<DropDownProvider>(
                   builder: (context, value, child) {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,6 +133,7 @@ class Tile extends StatelessWidget {
                       String updateName = nameController.text.isNotEmpty
                           ? nameController.text
                           : expense.name;
+
                       String updateDesc = descController.text.isNotEmpty
                           ? descController.text
                           : expense.description;
@@ -139,7 +141,7 @@ class Tile extends StatelessWidget {
                           ? double.parse(amountController.text)
                           : expense.amount;
                       final selectedCategory =
-                          Provider.of<DropDown>(context, listen: false)
+                          Provider.of<DropDownProvider>(context, listen: false)
                                   .selectedCategory ??
                               expense.category;
                       final selectedDate =
@@ -269,7 +271,7 @@ class Tile extends StatelessWidget {
                                 IconButton(
                                   onPressed: () =>
                                       _openDialog(expense, context),
-                                  icon: Icon(Icons.edit),
+                                  icon: const Icon(Icons.edit),
                                 ),
                                 const SizedBox(width: 20),
                                 IconButton(

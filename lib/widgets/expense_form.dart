@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
-import 'package:tracker/models/expense.dart';
 import 'package:tracker/provider/drop_down.dart';
+import 'package:tracker/models/category.dart';
 
 class ExpenseForm extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController descController;
   final TextEditingController amountController;
-  final DropDown dropDownProvider;
+  final DropDownProvider dropDownProvider;
 
   const ExpenseForm({
     Key? key,
@@ -66,24 +66,24 @@ class ExpenseForm extends StatelessWidget {
             ),
           ],
         ),
-        Consumer<ExpenseDatabase>(
-          builder: (context, expenseDatabase, child) {
-            return Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.read<ExpenseDatabase>().pickDate(context);
-                  },
-                  icon: const Icon(Icons.calendar_month),
-                ),
-                Text(
-                  expenseDatabase.pickedDate != null
-                      ? expenseDatabase.pickedDate.toString().split(' ')[0]
-                      : 'No date picked',
-                ),
-              ],
-            );
-          },
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                context.read<ExpenseDatabase>().pickDate(context);
+              },
+              icon: const Icon(Icons.calendar_month),
+            ),
+            Text(
+              context.watch<ExpenseDatabase>().pickedDate != null
+                  ? context
+                      .watch<ExpenseDatabase>()
+                      .pickedDate
+                      .toString()
+                      .split(' ')[0]
+                  : 'No date picked',
+            ),
+          ],
         ),
       ],
     );

@@ -6,16 +6,47 @@ import 'package:tracker/main.dart';
 import 'package:tracker/pages/home_page.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final supabase = Supabase.instance.client;
+
+  bool _isLogin = true;
+
+  bool get isLogin => _isLogin;
+
+  void toggleForm() {
+    _isLogin = !_isLogin;
+    notifyListeners();
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Sign Up Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // TODO: App does not support persistent login
+
   Future<void> signUp(
-      {required TextEditingController emailContoller,
-      required TextEditingController passwordController,
-      required TextEditingController usernameContoller,
+      {required String email,
+      required String password,
+      required String username,
       BuildContext? context}) async {
     try {
       await supabase.auth.signUp(
-        password: passwordController.text.trim(),
-        email: emailContoller.text.trim(),
-        data: {'username': usernameContoller.text.trim()},
+        password: password.trim(),
+        email: email.trim(),
+        data: {'username': username.trim()},
       );
       {
         if (context != null) {
@@ -24,18 +55,22 @@ class AuthProvider extends ChangeNotifier {
         }
       }
     } on AuthException catch (e) {
-      print(e);
+      if (context != null) {
+        _showErrorDialog(context, e.message);
+      } else {
+        print(e.message);
+      }
     }
   }
 
   Future<void> signIn(
-      {required TextEditingController emailContoller,
-      required TextEditingController passwordController,
+      {required String email,
+      required String password,
       BuildContext? context}) async {
     try {
       await supabase.auth.signInWithPassword(
-        password: passwordController.text.trim(),
-        email: emailContoller.text.trim(),
+        password: password.trim(),
+        email: email.trim(),
       );
 
       {
@@ -45,7 +80,11 @@ class AuthProvider extends ChangeNotifier {
         }
       }
     } on AuthException catch (e) {
-      print(e);
+      if (context != null) {
+        _showErrorDialog(context, e.message);
+      } else {
+        print(e.message);
+      }
     }
   }
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tracker/provider/auth_provider.dart';
 
 import 'package:tracker/widgets/my_button.dart';
 import 'package:tracker/widgets/my_textfield.dart';
 
+// TODO: Implement [LoginPage] route
 class LoginPage extends StatelessWidget {
   LoginPage({
     super.key,
@@ -11,6 +14,8 @@ class LoginPage extends StatelessWidget {
 
   final Function()? onTap;
 
+  // TODO: Controllers are initialized in "initState" method
+  // TODO: Controllers need to be disposed in "dispose"
   // text editing controllers
   final emailContoller = TextEditingController();
 
@@ -85,10 +90,10 @@ class LoginPage extends StatelessWidget {
                 MyButton(
                   text: 'Sign in',
                   onTap: () {
-                    Navigator.pushNamed(context, '/home_page');
+                    Navigator.pushNamed(context, '/home-page');
                     // Provider.of<AuthProvider>(context, listen: false).signIn(
-                    //   emailContoller: emailContoller,
-                    //   passwordController: passwordController,
+                    //   email: emailContoller.text,
+                    //   password: passwordController.text,
                     //   context: context,
                     // );
                   },

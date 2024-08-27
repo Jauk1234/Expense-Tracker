@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.4.4 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -41,6 +41,8 @@ dependencies:
   google_fonts: ^6.2.1
   uuid: ^4.4.2
   fl_chart: ^0.68.0
+  flutter_dotenv: ^5.1.0
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +54,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
+  json_serializable: ^6.8.0
+  build_runner: ^2.4.11
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -65,14 +69,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - "lib/images/work.png"
-    - "lib/images/wall.jpg"
-    - "lib/images/stocs.jpg"
-    - "lib/images/imagesTile/food.jpg"
-    - "lib/images/imagesTile/others.jpg"
-    - "lib/images/imagesTile/travel.jpg"
-    - "lib/images/imagesTile/hobi.webp"
-    - "lib/images/imagesTile/fun.jpg"
+    - "assets/work.png"
+    - "assets/wall.jpg"
+    - "assets/stocs.jpg"
+    - "assets/food.jpg"
+    - "assets/others.jpg"
+    - "assets/travel.jpg"
+    - "assets/hobi.webp"
+    - "assets/fun.jpg"
+    - .env
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

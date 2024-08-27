@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tracker/database/expense_database.dart';
-import 'package:tracker/widgets/my_tile.dart';
+import 'package:tracker/widgets/tile.dart';
 
 class ExpensesContent extends StatefulWidget {
   final Function showAddExpenseDialog;
@@ -31,86 +31,88 @@ class _ExpensesContentState extends State<ExpensesContent> {
   @override
   void initState() {
     super.initState();
-    selektovaneKategorije = List.from(widget.selektovaneKategorije);
+    selektovaneKategorije = [...widget.selektovaneKategorije];
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ExpenseDatabase>(
       builder: (context, expenseDatabase, child) {
-        return expenseDatabase.allExpense.isEmpty
-            ? Center(
-                child: Text(
-                  'No expenses added yet.',
-                  style: TextStyle(
-                    fontSize: 32,
-                    color: Colors.grey[800],
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            : SafeArea(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          FilterChip(
-                            selected: selektovaneKategorije.isEmpty,
-                            label: const Text("All"),
-                            onSelected: (selected) {
-                              setState(() {
-                                if (selected) {
-                                  selektovaneKategorije.clear();
-                                }
-                              });
-                              Provider.of<ExpenseDatabase>(context,
-                                      listen: false)
-                                  .addToFilteredExpenses(selektovaneKategorije);
-                            },
-                          ),
-                          ...widget.kategorije
-                              .map(
-                                (kategorija) => FilterChip(
-                                  selected: selektovaneKategorije
-                                      .contains(kategorija),
-                                  label: Text(kategorija),
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        selektovaneKategorije.add(kategorija);
-                                      } else {
-                                        selektovaneKategorije
-                                            .remove(kategorija);
-                                      }
-                                    });
-                                    Provider.of<ExpenseDatabase>(context,
-                                            listen: false)
-                                        .addToFilteredExpenses(
-                                            selektovaneKategorije);
-                                  },
-                                ),
-                              )
-                              .toList(),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: expenseDatabase.filteredExpense.length,
-                        itemBuilder: (context, index) {
-                          final expense =
-                              expenseDatabase.filteredExpense[index];
-                          return Tile(expense: expense);
+        // Check if there are any expenses
+        if (expenseDatabase.allExpense.isEmpty) {
+          // No expenses case
+          return Center(
+            child: Text(
+              'No expenses added yet.',
+              style: TextStyle(
+                fontSize: 32,
+                color: Colors.grey[800],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        } else {
+          // Expenses available case
+          return SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      FilterChip(
+                        selected: selektovaneKategorije.isEmpty,
+                        label: const Text("All"),
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              selektovaneKategorije.clear();
+                            }
+                          });
+                          Provider.of<ExpenseDatabase>(context, listen: false)
+                              .addToFilteredExpenses(selektovaneKategorije);
                         },
                       ),
-                    ),
-                  ],
+                      ...widget.kategorije
+                          .map(
+                            (kategorija) => FilterChip(
+                              selected:
+                                  selektovaneKategorije.contains(kategorija),
+                              label: Text(kategorija),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selektovaneKategorije.add(kategorija);
+                                  } else {
+                                    selektovaneKategorije.remove(kategorija);
+                                  }
+                                });
+                                Provider.of<ExpenseDatabase>(context,
+                                        listen: false)
+                                    .addToFilteredExpenses(
+                                        selektovaneKategorije);
+                              },
+                            ),
+                          )
+                          .toList(),
+                    ],
+                  ),
                 ),
-              );
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: expenseDatabase.filteredExpense.length,
+                    itemBuilder: (context, index) {
+                      final expense = expenseDatabase.filteredExpense[index];
+                      return Tile(expense: expense);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
       },
     );
   }

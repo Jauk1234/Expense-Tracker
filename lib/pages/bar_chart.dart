@@ -4,30 +4,10 @@ import 'package:tracker/models/expense.dart';
 import 'package:tracker/widgets/my_bar_graph.dart';
 import 'package:tracker/database/expense_database.dart';
 
-class BarChartPage extends StatefulWidget {
+class BarChartPage extends StatelessWidget {
   const BarChartPage({super.key, required this.expenses});
 
   final List<Expense> expenses;
-
-  @override
-  State<BarChartPage> createState() => _BarChartPageState();
-}
-
-class _BarChartPageState extends State<BarChartPage> {
-  late Future<Map<String, double>> _categoryTotalsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _categoryTotalsFuture = _fetchCategoryTotals();
-  }
-
-  Future<Map<String, double>> _fetchCategoryTotals() async {
-    final expenseDatabase =
-        Provider.of<ExpenseDatabase>(context, listen: false);
-    final totals = await expenseDatabase.calculateCategoryTotals();
-    return totals;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +26,8 @@ class _BarChartPageState extends State<BarChartPage> {
         ),
         child: Center(
           child: FutureBuilder<Map<String, double>>(
-            future: _categoryTotalsFuture,
+            future: Provider.of<ExpenseDatabase>(context, listen: false)
+                .calculateCategoryTotals(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
@@ -65,8 +46,7 @@ class _BarChartPageState extends State<BarChartPage> {
                 return SizedBox(
                   height: 400,
                   child: MyBarGraph(
-                    expenses:
-                        widget.expenses, // Ovdje prosledjujete unesene troškove
+                    expenses: expenses,
                   ),
                 );
               }

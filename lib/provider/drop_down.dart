@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:tracker/models/expense.dart';
+import 'package:tracker/models/category.dart';
 
-class DropDown extends ChangeNotifier {
-  final _allCategory = [
-    Category.Food,
-    Category.Travel,
-    Category.Fun,
-    Category.Work,
-    Category.Hobby,
-    Category.Others
-  ];
+class DropDownProvider extends ChangeNotifier {
+  final _allCategory = Category.values;
   List<Category> get allCategory => _allCategory;
 
-  Category selectedCategory = Category.Food;
+  Category selectedCategory = Category.Work;
 
   void setCategoryValue(Category category) {
     selectedCategory = category;
