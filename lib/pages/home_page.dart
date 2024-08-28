@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
     nameController = TextEditingController();
     descController = TextEditingController();
     amountController = TextEditingController();
+    Provider.of<ExpenseDatabase>(context, listen: false).loadExpenses();
   }
 
   @override

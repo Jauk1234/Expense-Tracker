@@ -11,6 +11,9 @@ class LoginOrRegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+
     return Consumer<AuthProvider>(
       builder: (context, authFormProvider, child) {
         final isLogin = authFormProvider.isLogin;
@@ -28,104 +31,119 @@ class LoginOrRegisterPage extends StatelessWidget {
               ),
             ),
             child: SafeArea(
-              child: Center(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 70),
-                    // Icon
-                    const Icon(
-                      Icons.account_circle_rounded,
-                      size: 100,
-                    ),
-                    const SizedBox(height: 50),
-                    Text(
-                      isLogin
-                          ? 'Welcome!'
-                          : 'Let\'s create an account for you!',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                          height: screenHeight *
+                              0.1), // Adjust height as a percentage of screen height
+                      // Icon
+                      const Icon(
+                        Icons.account_circle_rounded,
+                        size: 100,
                       ),
-                    ),
-
-                    // Conditional form based on isLogin state
-                    const SizedBox(height: 25),
-                    MyTextfield(
-                      controller: emailController,
-                      hintText: 'Email',
-                      obscureText: false,
-                    ),
-                    const SizedBox(height: 10),
-                    MyTextfield(
-                      controller: passwordController,
-                      hintText: 'Password',
-                      obscureText: true,
-                    ),
-                    if (!isLogin) ...[
-                      const SizedBox(height: 10),
+                      SizedBox(
+                          height: screenHeight *
+                              0.1), // Adjust height as a percentage of screen height
+                      Text(
+                        isLogin
+                            ? 'Welcome!'
+                            : 'Let\'s create an account for you!',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                          height: screenHeight *
+                              0.05), // Adjust height as a percentage of screen height
                       MyTextfield(
-                        controller: usernameController,
-                        hintText: 'Username',
+                        controller: emailController,
+                        hintText: 'Email',
                         obscureText: false,
                       ),
-                    ],
-                    const SizedBox(height: 25),
-                    MyButton(
-                      text: isLogin ? 'Sign in' : 'Sign Up',
-                      onTap: () {
-                        if (isLogin) {
-                          Provider.of<AuthProvider>(context, listen: false)
-                              .signIn(
-                            email: emailController.text,
-                            password: passwordController.text,
-                            context: context,
-                          );
-                        } else {
-                          Provider.of<AuthProvider>(context, listen: false)
-                              .signUp(
-                            email: emailController.text,
-                            password: passwordController.text,
-                            username: usernameController.text,
-                            context: context,
-                          );
-                        }
-                      },
-                      gradientColors: const [Colors.black, Colors.black],
-                      textColor: Colors.white,
-                    ),
-
-                    const Spacer(),
-
-                    // Toggle button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          isLogin
-                              ? 'Not a member?'
-                              : 'Already have an account?',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () => authFormProvider.toggleForm(),
-                          child: Text(
-                            isLogin ? 'Register now' : 'Login now',
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                            ),
-                          ),
+                      SizedBox(
+                          height: screenHeight *
+                              0.02), // Adjust height as a percentage of screen height
+                      MyTextfield(
+                        controller: passwordController,
+                        hintText: 'Password',
+                        obscureText: true,
+                      ),
+                      if (!isLogin) ...[
+                        SizedBox(
+                            height: screenHeight *
+                                0.02), // Adjust height as a percentage of screen height
+                        MyTextfield(
+                          controller: usernameController,
+                          hintText: 'Username',
+                          obscureText: false,
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 50),
-                  ],
+                      SizedBox(
+                          height: screenHeight *
+                              0.05), // Adjust height as a percentage of screen height
+                      MyButton(
+                        text: isLogin ? 'Sign in' : 'Sign Up',
+                        onTap: () {
+                          if (isLogin) {
+                            Provider.of<AuthProvider>(context, listen: false)
+                                .signIn(
+                              email: emailController.text,
+                              password: passwordController.text,
+                              context: context,
+                            );
+                          } else {
+                            Provider.of<AuthProvider>(context, listen: false)
+                                .signUp(
+                              email: emailController.text,
+                              password: passwordController.text,
+                              username: usernameController.text,
+                              context: context,
+                            );
+                          }
+                        },
+                        gradientColors: const [Colors.black, Colors.black],
+                        textColor: Colors.white,
+                      ),
+                      SizedBox(
+                          height: screenHeight *
+                              0.1), // Adjust height as a percentage of screen height
+
+                      // Toggle button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isLogin
+                                ? 'Not a member?'
+                                : 'Already have an account?',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () => authFormProvider.toggleForm(),
+                            child: Text(
+                              isLogin ? 'Register now' : 'Login now',
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                          height: screenHeight *
+                              0.1), // Adjust height as a percentage of screen height
+                    ],
+                  ),
                 ),
               ),
             ),

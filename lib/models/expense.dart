@@ -10,6 +10,7 @@ class Expense {
   final double amount;
   final DateTime date;
   final Category category;
+  final String? user_id;
 
   //TODO: Generate toJson and fromJson using JsonSerializable package
   Expense({
@@ -18,5 +19,6 @@ class Expense {
     required this.amount,
     required this.date,
     required this.category,
+    this.user_id,
   }) : id = uuid.v4();
 }

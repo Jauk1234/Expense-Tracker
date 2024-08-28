@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/main.dart';
 import 'package:tracker/pages/home_page.dart';
 import 'package:tracker/pages/intro_page.dart';
@@ -52,6 +54,7 @@ class AuthProvider extends ChangeNotifier {
         email: email.trim(),
         data: {'username': username.trim()},
       );
+      Provider.of<ExpenseDatabase>(context!, listen: false).refreshExpenses();
       if (context != null) {
         Navigator.pushReplacement(
           context,

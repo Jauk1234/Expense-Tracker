@@ -13,9 +13,14 @@ class ExpenseDatabase extends ChangeNotifier {
   DateTime initialDate = DateTime.now();
   DateTime firstDate = DateTime(2024);
   DateTime lastDate = DateTime.now();
+
   ExpenseDatabase() {
     // Initialize with empty filter
     addToFilteredExpenses([]);
+  }
+  String? getUserId() {
+    final user = supabase.auth.currentUser;
+    return user?.id;
   }
 
   void pickDate(BuildContext context) {
@@ -39,6 +44,38 @@ class ExpenseDatabase extends ChangeNotifier {
   //getters
   List<Expense> get allExpense => _allExpenses;
 
+  Future<void> loadExpenses() async {
+    try {
+      final userId = getUserId();
+      if (userId == null) {
+        // Handle case where user is not logged in or no user ID available
+        _filteredExpenses.clear();
+        notifyListeners();
+        return;
+      }
+
+      final response =
+          await supabase.from('tracker').select().eq('user_id', userId);
+
+      _allExpenses = (response as List<dynamic>).map((item) {
+        return Expense(
+          name: item['Name'],
+          description: item['Description'],
+          amount: item['Amount'],
+          date: DateTime.parse(item['date']),
+          category: Category.values.firstWhere(
+              (e) => e.toString().split('.').last == item['cateogry']),
+          user_id: item['user_id'],
+        );
+      }).toList();
+
+      addToFilteredExpenses([]);
+      await calculateMonthlyTotals();
+    } catch (e) {
+      print('Error loading expenses: $e');
+    }
+  }
+
 //OPERATIONS
   //create - add new expense
   Future<void> createNewExpense(Expense newExpense) async {
@@ -49,6 +86,7 @@ class ExpenseDatabase extends ChangeNotifier {
       'Amount': newExpense.amount,
       'date': newExpense.date.toIso8601String(),
       'cateogry': newExpense.category.toString().split('.').last,
+      'user_id': newExpense.user_id,
     };
 
     try {
@@ -213,6 +251,12 @@ class ExpenseDatabase extends ChangeNotifier {
 
 //dodaj expense u filt
   Future<void> addToFilteredExpenses(List<String> selectedCategories) async {
+    final userId = getUserId();
+    if (userId == null) {
+      _filteredExpenses.clear();
+      notifyListeners();
+      return;
+    }
     if (selectedCategories.isEmpty) {
       // If no categories are selected, show all expenses
       _filteredExpenses.clear();
@@ -226,6 +270,10 @@ class ExpenseDatabase extends ChangeNotifier {
       }));
     }
     notifyListeners();
+  }
+
+  Future<void> refreshExpenses() async {
+    await loadExpenses();
   }
 
   // Calculate total expense for each month
@@ -304,12 +352,19 @@ class ExpenseDatabase extends ChangeNotifier {
     }
 
     final expenseDate = pickedDate ?? DateTime.now();
+
+    // Retrieve the user_id from Supabase
+    final user = supabase.auth.currentUser;
+    final userId = user?.id; // Ensure user ID is not null
+
+    // Create expense with user_id
     final expense = Expense(
       name: name,
       description: description,
       amount: amount,
       date: expenseDate,
       category: selectedCategory,
+      user_id: userId, // Add user_id to the expense
     );
 
     createNewExpense(expense);
