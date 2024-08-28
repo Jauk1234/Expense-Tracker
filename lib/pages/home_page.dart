@@ -4,6 +4,7 @@ import 'package:tracker/database/expense_database.dart';
 import 'package:tracker/models/expense.dart';
 import 'package:tracker/pages/bar_chart.dart';
 import 'package:tracker/pages/info_page.dart';
+import 'package:tracker/provider/auth_provider.dart';
 import 'package:tracker/provider/drop_down.dart';
 import 'package:tracker/widgets/expense_content.dart';
 import 'package:tracker/widgets/expense_form.dart';
@@ -91,6 +92,19 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Expense Tracker'),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              Provider.of<AuthProvider>(context, listen: false)
+                  .signOut(context);
+            },
+          ),
+        ],
+      ),
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
               onPressed: () => _showAddExpenseDialog(context,
